@@ -7,7 +7,7 @@
 <style>
 /* (CSS) */
 :root{--bg:#0b1220;--text:#e8eefc;--muted:#a9b5d1;--line:#24324f;--green:#2ecc71;--yellow:#f1c40f;--red:#e74c3c;--neutral:#5f6b85;--shadow:0 10px 30px rgba(0,0,0,.35);--radius:18px;}
-body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:radial-gradient(1200px 600px at 10% -10%,rgba(46,204,113,.20),transparent 50%),radial-gradient(1200px 600px at 90% 0%,rgba(241,196,15,.18),transparent 55%),radial-gradient(1200px 600px at 90% 100%,rgba(231,76,60,.16),transparent 55%),var(--bg);color:var(--text);}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#0b1220 0%, #0b1220 100%);color:var(--text);}
 .wrap{max-width:980px;margin:0 auto;padding:18px 14px 90px;}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:5;padding:12px 0;backdrop-filter:blur(10px);}
 .title{font-weight:800;letter-spacing:.2px;font-size:18px;}
@@ -236,6 +236,9 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
   /* Top pill como card pequeno de Meta (Mês) */
   .pill.meta{
+    border-radius:14px; /* less pill, more rounded rectangle */
+    border:1.5px solid #2ecc71; /* green border */
+
     white-space: normal;
     max-width: 190px;
     line-height: 1.15;
@@ -248,7 +251,10 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   .pill.meta .v{ font-size: 18px; font-weight: 950; margin-top: 6px; }
   .pill.meta .s{ font-size: 12px; color: var(--muted); margin-top: 4px; }
   @media (max-width: 520px){
-    .pill.meta{ max-width: 170px; padding: 10px 10px; }
+    .pill.meta{
+    border-radius:14px; /* less pill, more rounded rectangle */
+    border:1.5px solid #2ecc71; /* green border */
+ max-width: 170px; padding: 10px 10px; }
     .pill.meta .v{ font-size: 16px; }
   }
 
@@ -284,9 +290,53 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
     max-width: 980px;
   }
 
+
+/* Logo integrado ao tema escuro */
+.login-logo {
+  width: 260px;
+  max-width: 85%;
+  height: auto;
+  margin-bottom: 32px;
+  padding: 18px;
+  border-radius: 20px;
+  opacity: 0.95;
+  filter: drop-shadow(0 10px 30px rgba(0,0,0,0.55));
+  background: radial-gradient(
+    circle at center,
+    rgba(255,255,255,0.08) 0%,
+    rgba(255,255,255,0.03) 35%,
+    rgba(255,255,255,0.00) 65%
+  );
+  animation: fadeUp 0.8s ease-out both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 0.95; transform: translateY(0); }
+}
+
 </style>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" style="position:fixed;inset:0;z-index:9999;background:#0b1220;display:flex;align-items:center;justify-content:center;">
+  <div style="width:100%;max-width:360px;padding:28px;text-align:center;">
+    <img src="logo.png" alt="VIMACOM" class="login-logo">
+    <input id="loginPassword" type="password" placeholder="Digite a senha"
+      style="width:100%;padding:14px 16px;border-radius:12px;border:1px solid #24324f;
+             background:#121a2b;color:#e8eefc;font-size:16px;outline:none;">
+    <button id="loginBtn"
+      style="margin-top:16px;width:100%;padding:14px;border-radius:12px;
+             border:none;background:#2ecc71;color:#0b1220;font-weight:800;font-size:16px;cursor:pointer;">
+      Acessar painel
+    </button>
+    <div id="loginError" style="display:none;margin-top:14px;color:#e74c3c;font-size:13px;">
+      Senha incorreta
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
   <div class="topbar">
     <div>
@@ -1232,5 +1282,29 @@ document.getElementById("btnBackProduto").addEventListener("click", ()=>{ docume
 
 initFilters(); render();
 </script>
+
+<script>
+  (function(){
+    const PASS = "diretoria@2026";
+    const screen = document.getElementById("loginScreen");
+    const btn = document.getElementById("loginBtn");
+    const input = document.getElementById("loginPassword");
+    const err = document.getElementById("loginError");
+
+    function tryLogin(){
+      if(input.value === PASS){
+        screen.style.display = "none";
+      } else {
+        err.style.display = "block";
+      }
+    }
+
+    btn.addEventListener("click", tryLogin);
+    input.addEventListener("keydown", e=>{
+      if(e.key==="Enter") tryLogin();
+    });
+  })();
+</script>
+
 </body>
 </html>

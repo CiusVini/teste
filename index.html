@@ -55,6 +55,10 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .detail .head .per{color:var(--muted);font-size:12px;margin-top:4px;}
 .cards2{display:flex;gap:10px;overflow-x:auto;padding:8px 2px 12px;}
 .cards2 .kpi{min-width:280px;max-width:280px;}
+@media (max-width: 520px){
+  .cards2{gap:8px;}
+  .cards2 .kpi{min-width:190px;max-width:190px;}
+}
 .prodlist{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px;}
 .prodcard{background:rgba(18,26,43,.82);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);}
 .prodcard .pname{font-weight:950;font-size:14px;}
@@ -229,6 +233,25 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   .carousel::-webkit-scrollbar{ height: 8px; }
   .carousel::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.12); border-radius: 999px; }
 
+
+  /* Top pill como card pequeno de Meta (Mês) */
+  .pill.meta{
+    white-space: normal;
+    max-width: 190px;
+    line-height: 1.15;
+    text-align: left;
+    padding: 10px 12px;
+    color: rgba(232,238,252,.92);
+    border-color: rgba(231,76,60,.55);
+  }
+  .pill.meta .t{ font-size: 12px; color: var(--muted); font-weight: 800; }
+  .pill.meta .v{ font-size: 18px; font-weight: 950; margin-top: 6px; }
+  .pill.meta .s{ font-size: 12px; color: var(--muted); margin-top: 4px; }
+  @media (max-width: 520px){
+    .pill.meta{ max-width: 170px; padding: 10px 10px; }
+    .pill.meta .v{ font-size: 16px; }
+  }
+
 </style>
 </head>
 <body>
@@ -238,7 +261,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
       <div class="title">Painel Comercial — Vendedores</div>
       <div class="subtitle" id="subPeriod">Período</div>
     </div>
-    <div class="pill" id="pillSummary">—</div>
+    <div class="pill meta" id="pillSummary">—</div>
   </div>
 
   
@@ -247,8 +270,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
       <div>
         <div class="rh-title">Acompanhamento do mês</div>
       </div>
-      <div class="rh-badge" id="rhBadge">—</div>
-    </div>
+</div>
 
     <div class="rh-bar" title="Realizado vs Esperado">
       <div class="real" id="rhRealBar"></div>
@@ -527,9 +549,7 @@ function render(){
     else if (percMetaEmp <= esperado - tol) { status="red"; statusLabel="Abaixo do necessário"; }
     else { status="yellow"; statusLabel="Em linha"; }
   }
-
-  const rhBadge = document.getElementById("rhBadge");
-  const rhBarLbl = document.getElementById("rhBarLbl");
+const rhBarLbl = document.getElementById("rhBarLbl");
   const rhWeeks = document.getElementById("rhWeeks");
 const rhRealBar = document.getElementById("rhRealBar");
   const rhMark = document.getElementById("rhMark");
@@ -539,12 +559,9 @@ const rhRealBar = document.getElementById("rhRealBar");
   const rhProjVal = document.getElementById("rhProjVal");
   const rhProjPct = document.getElementById("rhProjPct");
 
-  if (rhBadge) {
+  if (rhRealBar) {
     const realTxt = (percMetaEmp==null) ? "—" : fmtPct(percMetaEmp);
     const espTxt = fmtPct(esperado);
-
-    rhBadge.innerHTML = (metaEmp>0) ? `<span class="bline">Meta mês: ${fmtBRL(metaEmp)}</span><span class="bline">Falta: ${fmtBRL(falta)}</span>` : "Meta —";
-    rhBadge.style.borderColor = stripeColor(status);
 
     rhRealBar.style.width = `${(percMetaEmp==null?0:Math.max(0,Math.min(1,percMetaEmp))*100)}%`;
     rhRealBar.style.background = stripeColor(status);
@@ -614,7 +631,11 @@ const rhRealBar = document.getElementById("rhRealBar");
 
 
 
-  document.getElementById("pillSummary").textContent = `Empresa: ${fmtBRL(fatEmp)}`;
+  const pillSummary = document.getElementById("pillSummary");
+  pillSummary.classList.add("meta");
+  pillSummary.innerHTML = (metaEmp>0)
+    ? `<div class="t">Meta (Mês)</div><div class="v">${fmtBRL(metaEmp)}</div><div class="s">Falta: ${fmtBRL(falta)}</div>`
+    : `<div class="t">Meta (Mês)</div><div class="v">—</div><div class="s">Falta: —</div>`;
   buildKpi(document.getElementById("kpiEmpresa"), [
     {label:"Faturamento (R$)", value: fmtBRL(fatEmp)},
     {label:"Volume (kg)", value: fmtNum(kgEmp,2)},

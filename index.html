@@ -196,6 +196,39 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
     box-shadow: 0 0 0 2px rgba(0,0,0,.35);
   }
 
+
+  /* Badge Meta (mobile) */
+  .rh-badge{
+    white-space: normal;
+    max-width: 360px;
+    line-height: 1.15;
+    text-align: left;
+  }
+  @media (max-width: 520px){
+    .rh-badge{ max-width: 220px; }
+  }
+  .rh-badge .bline{ display:block; }
+
+
+  /* Carrossel de vendedores (estilo semanas) */
+  .carousel{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding: 2px 2px 10px;
+    scroll-snap-type: x mandatory;
+  }
+  .carousel .card{
+    min-width: 280px;
+    max-width: 280px;
+    scroll-snap-align: start;
+  }
+  @media (max-width: 520px){
+    .carousel .card{ min-width: 260px; max-width: 260px; }
+  }
+  .carousel::-webkit-scrollbar{ height: 8px; }
+  .carousel::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.12); border-radius: 999px; }
+
 </style>
 </head>
 <body>
@@ -250,11 +283,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
         <div class="l1">% da meta</div>
         <div class="v1" id="rhProjPct">—</div>
       </div>
-
-      <div class="status">
-        <div class="chip" id="rhProjStatus"><span class="dot" id="rhProjDot"></span><span id="rhProjStatusTxt">—</span></div>
-      </div>
-    </div>
+</div>
   </div>
 
 
@@ -502,10 +531,7 @@ function render(){
   const rhBadge = document.getElementById("rhBadge");
   const rhBarLbl = document.getElementById("rhBarLbl");
   const rhWeeks = document.getElementById("rhWeeks");
-  const rhProjStatus = document.getElementById("rhProjStatus");
-  const rhProjDot = document.getElementById("rhProjDot");
-  const rhProjStatusTxt = document.getElementById("rhProjStatusTxt");
-  const rhRealBar = document.getElementById("rhRealBar");
+const rhRealBar = document.getElementById("rhRealBar");
   const rhMark = document.getElementById("rhMark");
   const rhDiasRest = document.getElementById("rhDiasRest");
   const rhFatDia = document.getElementById("rhFatDia");
@@ -517,7 +543,7 @@ function render(){
     const realTxt = (percMetaEmp==null) ? "—" : fmtPct(percMetaEmp);
     const espTxt = fmtPct(esperado);
 
-    rhBadge.textContent = (metaEmp>0) ? `Meta mês: ${fmtBRL(metaEmp)} • Falta: ${fmtBRL(falta)}` : "Meta —";
+    rhBadge.innerHTML = (metaEmp>0) ? `<span class="bline">Meta mês: ${fmtBRL(metaEmp)}</span><span class="bline">Falta: ${fmtBRL(falta)}</span>` : "Meta —";
     rhBadge.style.borderColor = stripeColor(status);
 
     rhRealBar.style.width = `${(percMetaEmp==null?0:Math.max(0,Math.min(1,percMetaEmp))*100)}%`;
@@ -575,13 +601,6 @@ function render(){
     // Barra: % realizado
 
     if (rhBarLbl) rhBarLbl.textContent = (percMetaEmp==null) ? "—" : (`% meta (mês): ${fmtPct(percMetaEmp)}`);
-
-    // Status vai para o card de projeção
-    if (rhProjStatusTxt && rhProjDot) {
-      rhProjStatusTxt.textContent = statusLabel;
-      rhProjDot.style.background = stripeColor(status);
-      if (rhProjStatus) rhProjStatus.style.borderColor = stripeColor(status);
-    }
 
 
     

@@ -315,6 +315,30 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   to { opacity: 0.95; transform: translateY(0); }
 }
 
+
+/* Hamburger icon (substitui engrenagem) */
+.hamburger {
+  width: 22px;
+  height: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: #e8eefc;
+  border-radius: 2px;
+  opacity: 0.9;
+}
+
+/* subtle hover */
+#btnFilters:hover .hamburger span {
+  background: #2ecc71;
+}
+
 </style>
 </head>
 <body>
@@ -411,7 +435,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   </div>
 </div>
 
-<div class="fab" id="fab" title="Filtros"><span>⚙️</span></div>
+<div class="fab" id="fab" title="Filtros"><span></span></div>
 
 <div class="drawer-backdrop" id="backdrop"></div>
 <div class="drawer" id="drawer">

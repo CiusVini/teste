@@ -64,6 +64,62 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
 .h2 .left{font-weight:800;font-size:14px;}
 .h2 .right{font-size:12px;color:var(--muted);}
 .carousel{display:flex;gap:10px;overflow-x:auto;padding:6px 2px 12px;scroll-snap-type:x mandatory;}
+
+.search{
+  display:flex; align-items:center; gap:10px;
+  padding:12px 14px; border-radius:999px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow: var(--shadow);
+}
+.search .sico{width:18px;height:18px;opacity:.9}
+.search .sico svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+.search input{
+  flex:1; background:transparent; border:0; outline:none;
+  color:var(--text); font-size:14px;
+}
+.search input::placeholder{color:rgba(255,255,255,.45)}
+.search .sbtn{
+  width:34px;height:34px;border-radius:999px;
+  display:grid;place-items:center;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  cursor:pointer;
+}
+.search .sbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.9}
+
+.card.hero{padding:16px 16px;}
+.card.hero .row{align-items:flex-start}
+.card.hero .thumb{
+  width:64px;height:64px;border-radius:16px;
+  background:linear-gradient(135deg, rgba(46,204,113,.22), rgba(46,204,113,.06));
+  border:1px solid rgba(46,204,113,.25);
+  display:grid;place-items:center;
+}
+.card.hero .thumb svg{width:34px;height:34px;fill:none;stroke:rgba(255,255,255,.9);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card.hero .big{font-size:22px;font-weight:800;letter-spacing:.2px}
+.card.hero .sub{color:var(--muted);font-size:12px;margin-top:4px}
+.card.hero .kpis{display:flex;gap:14px;margin-top:14px}
+.card.hero .kpi{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:10px}
+.card.hero .kpi .label{color:var(--muted);font-size:11px}
+.card.hero .kpi .value{margin-top:4px;font-weight:800}
+
+.plist{display:flex;flex-direction:column;gap:10px}
+.pline{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 14px;border-radius:16px;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  cursor:pointer;
+}
+.pline .left{min-width:0}
+.pline .name{font-weight:800}
+.pline .meta{color:var(--muted);font-size:12px;margin-top:4px}
+.pline .right{text-align:right;white-space:nowrap}
+.pline .val{font-weight:900}
+.pline .pct{color:var(--green);font-size:12px;margin-top:4px}
+.pline .sub{color:var(--muted);font-size:12px;margin-top:4px;text-align:right;white-space:nowrap}
+@media(max-width:420px){ .pline .sub{white-space:normal; line-height:1.25} }
 .carousel::-webkit-scrollbar{height:8px;}
 .carousel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:999px;}
 .card{min-width:260px;max-width:260px;background:rgba(18,26,43,.82);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px;scroll-snap-align:start;position:relative;cursor:pointer;user-select:none;}
@@ -576,25 +632,46 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
   </div>
 
+  
   <div class="view" id="view-produtos">
     <div class="section">
       <div class="h2">
         <div class="left">Produtos</div>
-        <div class="right">Toque em um produto para ver detalhes</div>
+        <div class="right"></div>
+      </div>
+
+      <div class="search">
+        <div class="sico" aria-hidden="true">
+          <!-- lucide: search -->
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <input id="prodSearch" type="text" placeholder="Buscar produto" autocomplete="off" />
+        <button class="sbtn" id="prodClear" aria-label="Limpar busca" title="Limpar">
+          <!-- lucide: x -->
+          <svg viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="M6 6l12 12"/></svg>
+        </button>
       </div>
     </div>
-    <div class="section">
-    <div class="h2">
-      <div class="left">Carrossel por produto</div>
-      <div class="right">Toque em um produto para ver detalhes</div>
-    </div>
-    <div class="carousel" id="carouselProdutos"></div>
-  </div>
 
-  
+    <div class="section" id="prodFeaturedWrap">
+      <div class="h2">
+        <div class="left">Destaque</div>
+        <div class="right">Top por valor no período</div>
+      </div>
+      <div class="card hero" id="prodFeatured"></div>
+    </div>
+
+    <div class="section">
+      <div class="h2">
+        <div class="left">Lista de produtos</div>
+        <div class="right">Toque para ver detalhes</div>
+      </div>
+      <div class="plist" id="prodList"></div>
+    </div>
   </div>
 
   <div class="view" id="view-vendedores">
+
     <div class="section">
       <div class="h2">
         <div class="left">Vendedores</div>
@@ -733,7 +810,7 @@ const fmtBRL = (n) => (n==null || isNaN(n)) ? "—" : n.toLocaleString("pt-BR", 
 const fmtNum = (n, d=0) => (n==null || isNaN(n)) ? "—" : n.toLocaleString("pt-BR", {minimumFractionDigits:d, maximumFractionDigits:d});
 const fmtPct = (n) => (n==null || isNaN(n)) ? "—" : (n*100).toLocaleString("pt-BR", {maximumFractionDigits:1}) + "%";
 
-const state = { ano: 2026, mes_num: 2, time:"", produto:"", vendedor:"" };
+const state = { ano: 2026, mes_num: 2, time:"", produto:"", vendedor:"" , view:"home", prodQuery:""};
 
 function setDefaultPeriodToCurrentMonth(){
   try{
@@ -1026,64 +1103,92 @@ const vendorList=distinct(empresaRows,"vendedor");
   });
 
 
-  // --- Carrossel por produto (no período) ---
-  const carouselProdutos=document.getElementById("carouselProdutos");
-  if (carouselProdutos){
-    carouselProdutos.innerHTML="";
-    // base do período (respeita filtros ano/mes/time, mas NÃO força vendedor nem produto)
-    const rowsBaseProd=getFilteredRows({ano:state.ano, mes_num:state.mes_num, time:state.time, produto:"", vendedor:""});
-    const fatBase=sum(rowsBaseProd,"valor_bruto");
+  // --- Produtos (no período) ---
+  // base do período (respeita filtros ano/mes/time, mas NÃO força vendedor nem produto)
+  const rowsBaseProd=getFilteredRows({ano:state.ano, mes_num:state.mes_num, time:state.time, produto:"", vendedor:""});
+  const fatBase=sum(rowsBaseProd,"valor_bruto");
 
-    // agrega por produto
-    const prodAgg = PRODUTOS.map(p=>{
-      const r=rowsBaseProd.filter(x=>x.produto===p);
-      const v=sum(r,"valor_bruto"), k=sum(r,"peso"), l=sum(r,"lucro");
-      const preco=(k>0)?(v/k):null;
-      const totC=sum(r,"valor_total_custo");
-      const totS=sum(r,"valor_sem_imposto");
-      const custoMed=(k>0 && totC>0)?(totC/k):null;
-      const semImpMed=(k>0 && totS>0)?(totS/k):null;
-      const margemPct=(v>0)?(l/v):null;
-      const mix=(fatBase>0)?(v/fatBase):null;
-      return {produto:p, valor:v, kg:k, lucro:l, preco, custoMed, semImpMed, margemPct, mix};
-    }).sort((a,b)=>b.valor-a.valor);
+  // agrega por produto
+  const prodAgg = PRODUTOS.map(p=>{
+    const r=rowsBaseProd.filter(x=>x.produto===p);
+    const v=sum(r,"valor_bruto"), k=sum(r,"peso"), l=sum(r,"lucro");
+    const preco=(k>0)?(v/k):null;
+    const totC=sum(r,"valor_total_custo");
+    const totS=sum(r,"valor_sem_imposto");
+    const custoMed=(k>0 && totC>0)?(totC/k):null;
+    const semImpMed=(k>0 && totS>0)?(totS/k):null;
+    const margemPct=(v>0)?(l/v):null;
+    const mix=(fatBase>0)?(v/fatBase):null;
+    return {produto:p, valor:v, kg:k, lucro:l, preco, custoMed, semImpMed, margemPct, mix};
+  }).sort((a,b)=>b.valor-a.valor);
 
-    for(const p of prodAgg){
-      const card=document.createElement("div");
-      card.className="card";
-      card.innerHTML = `
+  // aplica busca (apenas UI, sem mexer nos cálculos)
+  const q=(state.prodQuery||"").trim().toLowerCase();
+  const prodView = (state.view==="produtos");
+  const filtered = (!q) ? prodAgg : prodAgg.filter(p=>p.produto.toLowerCase().includes(q));
+
+  // featured
+  const featuredWrap=document.getElementById("prodFeaturedWrap");
+  const featured=document.getElementById("prodFeatured");
+  if(featured){
+    const top = filtered[0] || null;
+    if(!top){
+      if(featuredWrap) featuredWrap.style.display="none";
+    } else {
+      if(featuredWrap) featuredWrap.style.display="";
+      featured.innerHTML = `
         <div class="row">
-          <div>
-            <div class="name">${p.produto}</div>
-            <div class="meta">Mix no período: ${p.mix==null ? "—" : fmtPct(p.mix)}</div>
+          <div style="display:flex; gap:12px; align-items:center;">
+            <div class="thumb" aria-hidden="true">
+              <!-- lucide: package -->
+              <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            </div>
+            <div>
+              <div class="big">${top.produto}</div>
+              <div class="sub">Mix no período: ${top.mix==null ? "—" : fmtPct(top.mix)} • ${top.preco==null ? "Preço —" : fmtBRL(top.preco) + "/kg"}</div>
+            </div>
           </div>
-          <div class="pill">${p.preco==null ? "Preço —" : fmtBRL(p.preco) + "/kg"}</div>
+          <div class="pill">${top.margemPct==null ? "Margem —" : fmtPct(top.margemPct)}</div>
         </div>
 
-        <div class="row" style="margin-top:10px;">
-          <div class="metric" style="margin-top:0; flex:1;">
+        <div class="kpis">
+          <div class="kpi">
             <div class="label">Valor</div>
-            <div class="value">${fmtBRL(p.valor)}</div>
+            <div class="value">${fmtBRL(top.valor)}</div>
           </div>
-          <div class="metric" style="margin-top:0; flex:1;">
+          <div class="kpi">
             <div class="label">Kg</div>
-            <div class="value">${fmtNum(p.kg,2)}</div>
+            <div class="value">${fmtNum(top.kg,2)}</div>
           </div>
-        </div>
-
-        <div class="row" style="margin-top:10px;">
-          <div class="metric" style="margin-top:0; flex:1;">
+          <div class="kpi">
             <div class="label">Lucro</div>
-            <div class="value">${fmtBRL(p.lucro)}</div>
-          </div>
-          <div class="metric" style="margin-top:0; flex:1;">
-            <div class="label">Margem</div>
-            <div class="value">${p.margemPct==null ? "—" : fmtPct(p.margemPct)}</div>
+            <div class="value">${fmtBRL(top.lucro)}</div>
           </div>
         </div>
       `;
-      card.addEventListener("click", ()=>openProductDetail(p.produto));
-      carouselProdutos.appendChild(card);
+      featured.onclick = ()=>openProductDetail(top.produto);
+    }
+  }
+
+  // list
+  const list=document.getElementById("prodList");
+  if(list){
+    list.innerHTML="";
+    for(const p of filtered){
+      const row=document.createElement("div");
+      row.className="pline";
+      row.innerHTML = `
+        <div class="left">
+          <div class="name">${p.produto}</div>
+          <div class="meta">${p.preco==null ? "Preço —" : ("Preço médio: " + fmtBRL(p.preco)+"/kg")} • Kg: ${fmtNum(p.kg,2)}</div>
+        </div>
+        <div class="right">
+          <div class="val">${fmtBRL(p.valor)}</div>
+          <div class="sub">Mix: ${p.mix==null ? "—" : fmtPct(p.mix)} • Margem: ${p.margemPct==null ? "—" : fmtPct(p.margemPct)}</div>
+        </div>
+      `;
+      row.addEventListener("click", ()=>openProductDetail(p.produto));
+      list.appendChild(row);
     }
   }
 
@@ -1482,22 +1587,51 @@ document.getElementById("btnBackProduto").addEventListener("click", ()=>{ docume
 
 initFilters();
 
+
+// Busca de produtos (UI)
+(function(){
+  const inp=document.getElementById("prodSearch");
+  const clr=document.getElementById("prodClear");
+  if(inp){
+    inp.value = state.prodQuery || "";
+    inp.addEventListener("input", ()=>{
+      state.prodQuery = inp.value;
+      // só re-renderiza a lista (mantém cálculos)
+      render();
+    });
+  }
+  if(clr){
+    clr.addEventListener("click", ()=>{
+      state.prodQuery = "";
+      if(inp) inp.value="";
+      render();
+    });
+  }
+})();
+
 // Define um período padrão (mês/ano) assim que o app abre,
 // para evitar que a tela carregue “vazia” quando não há filtros aplicados.
-setDefaultPeriodToCurrentMonth();
-setView(state.view || 'home');
+// (IMPORTANTE) Este bloco roda após o DOM estar pronto, para garantir binds (ex.: bottom nav).
+document.addEventListener('DOMContentLoaded', () => {
+  try{
+    setDefaultPeriodToCurrentMonth();
+    setView(state.view || 'home');
 
-// Bottom navigation handlers
-(function(){
-  const nav=document.getElementById("bottomNav");
-  if(!nav) return;
-  nav.querySelectorAll(".item").forEach(it=>{
-    it.addEventListener("click", ()=>{
-      setView(it.dataset.view);
-    });
-  });
-})();
-render();
+    // Bottom navigation handlers
+    const nav = document.getElementById("bottomNav");
+    if(nav){
+      nav.querySelectorAll(".item").forEach(it=>{
+        it.addEventListener("click", ()=>{
+          setView(it.dataset.view);
+        });
+      });
+    }
+
+    render();
+  }catch(e){
+    console.error("Erro ao inicializar:", e);
+  }
+});
 </script>
 
 <script>

@@ -339,6 +339,51 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   background: #2ecc71;
 }
 
+
+/* Bottom navigation */
+.bottom-nav{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  height:72px;
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+  background:rgba(11,18,32,0.92);
+  backdrop-filter: blur(10px);
+  border-top:1px solid rgba(255,255,255,0.06);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  z-index:1200;
+}
+.bottom-nav .item{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  color:rgba(232,238,252,0.72);
+  font-size:12px;
+  cursor:pointer;
+  user-select:none;
+}
+.bottom-nav .item .ico{
+  width:22px; height:22px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:10px;
+}
+.bottom-nav .item.active{
+  color:#2ecc71;
+}
+.bottom-nav .item.active .ico{
+  background:rgba(46,204,113,0.14);
+  box-shadow: 0 0 0 1px rgba(46,204,113,0.18) inset;
+}
+/* Views */
+.view{display:none;}
+.view.active{display:block;}
+/* Keep content above nav */
+.wrap{ padding-bottom: 96px; }
+
 </style>
 </head>
 <body>
@@ -362,6 +407,10 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 </div>
 
 <div class="wrap">
+
+  <div class="view active" id="view-home">
+    <!-- HOME: apenas números-chave do mês -->
+
   <div class="topbar">
     <div>
       <div class="title">Painel Comercial — Vendedores</div>
@@ -418,22 +467,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 <div class="grid-kpi" id="kpiEmpresa"></div>
 
 
-  <div class="section">
-    <div class="h2">
-      <div class="left">Carrossel por produto</div>
-      <div class="right">Toque em um produto para ver detalhes</div>
-    </div>
-    <div class="carousel" id="carouselProdutos"></div>
   </div>
-
-  <div class="section">
-    <div class="h2">
-      <div class="left">Carrossel por vendedor</div>
-      <div class="right">Toque em um vendedor para ver detalhes</div>
-    </div>
-    <div class="carousel" id="carousel"></div>
-  </div>
-</div>
 
 <div class="fab" id="fab" title="Filtros"><span></span></div>
 
@@ -450,6 +484,44 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
     <button class="btn primary" id="btnAplicar">Aplicar</button>
   </div>
 </div>
+
+
+  </div>
+
+  <div class="view" id="view-produtos">
+    <div class="section">
+      <div class="h2">
+        <div class="left">Produtos</div>
+        <div class="right">Toque em um produto para ver detalhes</div>
+      </div>
+    </div>
+    <div class="section">
+    <div class="h2">
+      <div class="left">Carrossel por produto</div>
+      <div class="right">Toque em um produto para ver detalhes</div>
+    </div>
+    <div class="carousel" id="carouselProdutos"></div>
+  </div>
+
+  
+  </div>
+
+  <div class="view" id="view-vendedores">
+    <div class="section">
+      <div class="h2">
+        <div class="left">Vendedores</div>
+        <div class="right">Toque em um vendedor para ver detalhes</div>
+      </div>
+    </div>
+    <div class="section">
+    <div class="h2">
+      <div class="left">Carrossel por vendedor</div>
+      <div class="right">Toque em um vendedor para ver detalhes</div>
+    </div>
+    <div class="carousel" id="carousel"></div>
+  </div>
+
+  </div>
 
 <div class="detail" id="detail">
   <div class="back" id="btnBack">← Voltar</div>
@@ -574,6 +646,55 @@ const fmtNum = (n, d=0) => (n==null || isNaN(n)) ? "—" : n.toLocaleString("pt-
 const fmtPct = (n) => (n==null || isNaN(n)) ? "—" : (n*100).toLocaleString("pt-BR", {maximumFractionDigits:1}) + "%";
 
 const state = { ano: 2026, mes_num: 2, time:"", produto:"", vendedor:"" };
+
+function setDefaultPeriodToCurrentMonth(){
+  try{
+    const now=new Date();
+    const y=String(now.getFullYear());
+    const m=now.getMonth()+1;
+    if (MESES_BY_ANO[y] && MESES_BY_ANO[y].some(x=>x.mes_num===m)){
+      state.ano=Number(y);
+      state.mes_num=m;
+      return;
+    }
+    const years=Object.keys(MESES_BY_ANO).map(x=>Number(x)).sort((a,b)=>a-b);
+    const lastY=years[years.length-1];
+    const months=MESES_BY_ANO[String(lastY)].map(x=>x.mes_num).sort((a,b)=>a-b);
+    state.ano=lastY;
+    state.mes_num=months[months.length-1];
+  }catch(e){ console.warn("default period error", e); }
+}
+
+function setView(v){
+  state.view=v;
+  const map={home:"view-home", produtos:"view-produtos", vendedores:"view-vendedores"};
+  for(const key of Object.values(map)){
+    const el=document.getElementById(key);
+    if(el) el.classList.remove("active");
+  }
+  const el=document.getElementById(map[v]||"view-home");
+  if(el) el.classList.add("active");
+
+  const nav=document.getElementById("bottomNav");
+  if(nav){
+    nav.querySelectorAll(".item").forEach(it=>{
+      it.classList.toggle("active", it.dataset.view===v);
+    });
+  }
+
+  const btn=document.getElementById("btnFilters");
+  if(btn){
+    btn.style.display = (v==="produtos" || v==="vendedores") ? "" : "none";
+  }
+
+  const h=document.getElementById("title");
+  if(h){
+    if(v==="home") h.innerHTML = 'Painel Comercial — <span style="opacity:.9">Visão do mês</span>';
+    if(v==="produtos") h.innerHTML = 'Painel Comercial — <span style="opacity:.9">Produtos</span>';
+    if(v==="vendedores") h.innerHTML = 'Painel Comercial — <span style="opacity:.9">Vendedores</span>';
+  }
+}
+
 
 function openDrawer(open=true){
   document.getElementById("drawer").classList.toggle("open", open);
@@ -1291,7 +1412,10 @@ function initFilters(){
   document.getElementById("btnAplicar").addEventListener("click", ()=>{
     state.mes_num=Number(fMes.value);
     state.time=fTime.value; state.produto=fProduto.value; state.vendedor=fVendedor.value;
-    openDrawer(false); render(); if(state.vendedor) openVendorDetail(state.vendedor); if(state.produto && !state.vendedor) openProductDetail(state.produto);
+    openDrawer(false); setDefaultPeriodToCurrentMonth();
+  setView(state.view||'home');
+  render();
+  if(state.vendedor) openVendorDetail(state.vendedor); if(state.produto && !state.vendedor) openProductDetail(state.produto);
   });
   document.getElementById("btnLimpar").addEventListener("click", ()=>{
     state.time=""; state.produto=""; state.vendedor="";
@@ -1304,7 +1428,19 @@ document.getElementById("backdrop").addEventListener("click", ()=>openDrawer(fal
 document.getElementById("btnBack").addEventListener("click", ()=>{ document.getElementById("detail").classList.remove("open"); });
 document.getElementById("btnBackProduto").addEventListener("click", ()=>{ document.getElementById("pdetail").classList.remove("open"); });
 
-initFilters(); render();
+initFilters();
+
+// Bottom navigation handlers
+(function(){
+  const nav=document.getElementById("bottomNav");
+  if(!nav) return;
+  nav.querySelectorAll(".item").forEach(it=>{
+    it.addEventListener("click", ()=>{
+      setView(it.dataset.view);
+    });
+  });
+})();
+ render();
 </script>
 
 <script>
@@ -1329,6 +1465,22 @@ initFilters(); render();
     });
   })();
 </script>
+
+
+<div class="bottom-nav" id="bottomNav">
+  <div class="item active" data-view="home">
+    <div class="ico">🏠</div>
+    <div>Início</div>
+  </div>
+  <div class="item" data-view="produtos">
+    <div class="ico">📦</div>
+    <div>Produtos</div>
+  </div>
+  <div class="item" data-view="vendedores">
+    <div class="ico">👤</div>
+    <div>Vendedores</div>
+  </div>
+</div>
 
 </body>
 </html>

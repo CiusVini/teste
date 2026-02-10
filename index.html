@@ -334,10 +334,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   opacity: 0.9;
 }
 
-/* subtle hover */
-#btnFilters:hover .hamburger span {
-  background: #2ecc71;
-}
+/* (reservado) */
 
 
 /* Bottom navigation */
@@ -371,6 +368,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   display:flex; align-items:center; justify-content:center;
   border-radius:10px;
 }
+.ico svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
 .bottom-nav .item.active{
   color:#2ecc71;
 }
@@ -469,7 +467,12 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
   </div>
 
-<div class="fab" id="fab" title="Filtros"><span></span></div>
+<div class="fab" id="fab" title="Filtros" aria-label="Abrir filtros">
+  <span aria-hidden="true">
+    <!-- Lucide: sliders-horizontal -->
+    <svg viewBox="0 0 24 24"><path d="M21 4h-7"/><path d="M10 4H3"/><path d="M21 12h-9"/><path d="M8 12H3"/><path d="M21 20h-5"/><path d="M12 20H3"/><path d="M14 2v4"/><path d="M12 10v4"/><path d="M16 18v4"/></svg>
+  </span>
+</div>
 
 <div class="drawer-backdrop" id="backdrop"></div>
 <div class="drawer" id="drawer">
@@ -682,9 +685,9 @@ function setView(v){
     });
   }
 
-  const btn=document.getElementById("btnFilters");
-  if(btn){
-    btn.style.display = (v==="produtos" || v==="vendedores") ? "" : "none";
+  const fab=document.getElementById("fab");
+  if(fab){
+    fab.style.display = (v==="produtos" || v==="vendedores") ? "flex" : "none";
   }
 
   const h=document.getElementById("title");
@@ -1469,15 +1472,24 @@ initFilters();
 
 <div class="bottom-nav" id="bottomNav">
   <div class="item active" data-view="home">
-    <div class="ico">🏠</div>
+    <div class="ico" aria-hidden="true">
+      <!-- Lucide: home -->
+      <svg viewBox="0 0 24 24"><path d="M9 21V12h6v9"/><path d="M3 10.5 12 3l9 7.5"/><path d="M21 10.5V21a1 1 0 0 1-1 1h-5"/><path d="M3 10.5V21a1 1 0 0 0 1 1h5"/></svg>
+    </div>
     <div>Início</div>
   </div>
   <div class="item" data-view="produtos">
-    <div class="ico">📦</div>
+    <div class="ico" aria-hidden="true">
+      <!-- Lucide: package -->
+      <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+    </div>
     <div>Produtos</div>
   </div>
   <div class="item" data-view="vendedores">
-    <div class="ico">👤</div>
+    <div class="ico" aria-hidden="true">
+      <!-- Lucide: users -->
+      <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M8 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
     <div>Vendedores</div>
   </div>
 </div>

@@ -3,21 +3,63 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Painel Comercial — Vendedores (Prototype)</title>
+<title>VIMACOM — Painel</title>
 <style>
 /* (CSS) */
 :root{--bg:#0b1220;--text:#e8eefc;--muted:#a9b5d1;--line:#24324f;--green:#2ecc71;--yellow:#f1c40f;--red:#e74c3c;--neutral:#5f6b85;--shadow:0 10px 30px rgba(0,0,0,.35);--radius:18px;}
 body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#0b1220 0%, #0b1220 100%);color:var(--text);}
-.wrap{max-width:980px;margin:0 auto;padding:18px 14px 90px;}
+.wrap{max-width:460px;margin:0 auto;padding:18px 14px 90px;}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:5;padding:12px 0;backdrop-filter:blur(10px);}
 .title{font-weight:800;letter-spacing:.2px;font-size:18px;}
 .subtitle{font-size:12px;color:var(--muted);margin-top:2px;}
 .pill{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:8px 10px;border-radius:999px;background:rgba(18,26,43,.6);}
+
+.iconbtn{width:40px;height:40px;border-radius:14px;border:1px solid var(--line);background:rgba(18,26,43,.6);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow);}
+.iconbtn svg{width:20px;height:20px;stroke:rgba(232,238,252,.85);}
 .grid-kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:8px;}
 .kpi{background:rgba(18,26,43,.7);border:1px solid var(--line);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);}
 .kpi .label{color:var(--muted);font-size:12px;}
 .kpi .value{font-size:18px;font-weight:800;margin-top:6px;}
 .section{margin-top:16px;}
+
+/* Home (cards) */
+.home-cards{margin-top:14px;display:flex;flex-direction:column;gap:14px;}
+.home-card{background:rgba(18,26,43,.72);border:1px solid var(--line);border-radius:22px;padding:16px 16px;box-shadow:var(--shadow);} 
+.home-card .k{color:var(--muted);font-size:13px;}
+.home-card .v{font-size:26px;font-weight:950;letter-spacing:.2px;margin-top:6px;}
+.home-card .s{color:rgba(232,238,252,.85);font-size:13px;margin-top:8px;}
+.home-card .muted{color:var(--muted);} 
+
+.home-meta{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.home-meta .v{font-size:30px;}
+.home-meta .sub{color:var(--muted);font-size:13px;margin-top:8px;}
+
+.ring{width:82px;height:82px;flex:0 0 82px;}
+.ring .bg{stroke:rgba(255,255,255,.10);}
+.ring .fg{stroke:var(--green);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;filter:drop-shadow(0 6px 14px rgba(46,204,113,.18));}
+.ring .txt{font-weight:950;font-size:16px;fill:rgba(232,238,252,.92);}
+
+.hbar{margin-top:12px;height:10px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;}
+.hbar > div{height:100%;width:0%;background:rgba(46,204,113,.85);} 
+
+.home-lucro .row2{display:flex;gap:14px;margin-top:12px;}
+.home-lucro .mini{flex:1;border:1px solid var(--line);border-radius:16px;padding:10px 12px;background:rgba(15,23,38,.55);} 
+.home-lucro .mini .k{font-size:12px;}
+.home-lucro .mini .v2{font-weight:950;font-size:16px;margin-top:6px;}
+
+/* Topbar com logo */
+.topbar .brand{display:flex;align-items:center;gap:10px;}
+.topbar .brand img{width:44px;height:44px;object-fit:contain;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.02);} 
+.topbar .brand .t{font-weight:900;font-size:14px;letter-spacing:.4px;}
+
+@media (max-width:520px){
+  .wrap{padding:18px 16px 106px;}
+  .topbar{padding:14px 0 10px;}
+  .home-card{padding:18px 16px;}
+  .home-card .v{font-size:28px;}
+  .home-meta .v{font-size:30px;}
+}
+
 .h2{display:flex;align-items:flex-end;justify-content:space-between;margin:12px 0 8px;}
 .h2 .left{font-weight:800;font-size:14px;}
 .h2 .right{font-size:12px;color:var(--muted);}
@@ -382,6 +424,38 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 /* Keep content above nav */
 .wrap{ padding-bottom: 96px; }
 
+
+/* --- HOME (novo visual) --- */
+.home-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 10px;}
+.brandline{display:flex;align-items:center;gap:10px;}
+.brandlogo{height:34px;width:auto;display:block;filter:drop-shadow(0 10px 25px rgba(0,0,0,.45));}
+.period-chip{padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:13px;backdrop-filter:blur(10px);}
+.home-h1{font-size:22px;font-weight:750;letter-spacing:.2px;margin:14px 0 12px;}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.35);backdrop-filter:blur(12px);}
+.meta-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 16px;margin-bottom:12px;}
+.meta-left .k{color:var(--muted);font-size:13px;margin-bottom:6px;}
+.meta-left .v{font-size:24px;font-weight:800;letter-spacing:.2px;}
+.meta-left .s{margin-top:6px;color:var(--muted);font-size:13px;}
+.meta-ring{position:relative;width:94px;height:94px;display:grid;place-items:center;}
+.ring-svg{width:94px;height:94px;transform:rotate(-90deg);}
+.ring-track{fill:none;stroke:rgba(255,255,255,.10);stroke-width:10;}
+.ring-value{fill:none;stroke:rgba(46,204,113,.95);stroke-width:10;stroke-linecap:round;filter:url(#softGlow);stroke-dasharray:289;stroke-dashoffset:289;}
+.ring-text{position:absolute;inset:0;display:grid;place-items:center;transform:none;}
+.ring-text .pct{font-weight:850;font-size:16px;color:rgba(46,204,113,.95);}
+.kpi-card{padding:14px 14px;margin:0 0 12px;}
+.kpi-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.kpi-row .k{color:var(--muted);font-size:13px;}
+.kpi-row .v{font-size:18px;font-weight:800;}
+.kpi-row .v.right{text-align:right;}
+.bar{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.06);}
+.fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg, rgba(46,204,113,.25), rgba(46,204,113,.95));}
+.kpi-foot{margin-top:10px;color:var(--muted);font-size:13px;display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+.kpi-foot .pct{color:rgba(46,204,113,.95);font-weight:800;}
+.kpi-foot.split{justify-content:flex-start;color:var(--text);}
+.kpi-foot.split .muted{color:var(--muted);}
+.dot{width:4px;height:4px;border-radius:999px;background:rgba(255,255,255,.22);display:inline-block;margin:0 6px;}
+.legacy-hide{display:none;}
+
 </style>
 </head>
 <body>
@@ -406,64 +480,75 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
 <div class="wrap">
 
-  <div class="view active" id="view-home">
-    <!-- HOME: apenas números-chave do mês -->
-
-  <div class="topbar">
-    <div>
-      <div class="title">Painel Comercial — Vendedores</div>
-      <div class="subtitle" id="subPeriod">Período</div>
-    </div>
-    <div class="pill meta" id="pillSummary">—</div>
-  </div>
-
   
-  <div class="rhythm" id="rhythm">
-    <div class="rh-top">
-      <div>
-        <div class="rh-title">Acompanhamento do mês</div>
-      </div>
-</div>
 
-    <div class="rh-bar" title="Realizado vs Esperado">
-      <div class="real" id="rhRealBar"></div>
-      <div class="mark" id="rhMark"></div>
-      <div class="lbl" id="rhBarLbl">—</div>
-    </div>
+  <div class="view active" id="view-home">
+    <!-- HOME: visão rápida do mês (cards) -->
 
-    <div class="rh-weeks" id="rhWeeks"></div>
-
-    <div class="rh-mini">
-      <div class="box">
-        <div class="l">Dias restantes</div>
-        <div class="v" id="rhDiasRest">—</div>
+    <div class="topbar">
+      <div class="brand">
+        <img src="logo.png" alt="VIMACOM" />
       </div>
-      <div class="box">
-        <div class="l">Faturar por dia (necessário)</div>
-        <div class="v" id="rhFatDia">—</div>
-      </div>
-      <div class="box">
-        <div class="l">Kg por dia (estimado)</div>
-        <div class="v" id="rhKgDia">—</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="pill" id="periodPill">Período: —</div>
+        <button class="iconbtn" id="menuBtn" aria-label="Abrir filtros" title="Filtros">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
       </div>
     </div>
 
-    <div class="rh-proj">
-      <div>
-        <div class="l1">Projeção do mês (no ritmo atual)</div>
-        <div class="v1" id="rhProjVal">—</div>
+    <div class="home-cards">
+      <!-- Meta -->
+      <div class="home-card home-meta">
+        <div>
+          <div class="k">Meta (Mês)</div>
+          <div class="v" id="homeMetaVal">—</div>
+          <div class="sub">Falta: <span id="homeMetaFalta">—</span></div>
+        </div>
+
+        <svg class="ring" viewBox="0 0 100 100" aria-label="% da meta">
+          <circle class="bg" cx="50" cy="50" r="42" stroke-width="10" fill="none" />
+          <circle class="fg" id="homeMetaRing" cx="50" cy="50" r="42" stroke-width="10" fill="none" stroke-dasharray="263.89" stroke-dashoffset="263.89" />
+          <text class="txt" id="homeMetaPct" x="50" y="56" text-anchor="middle">—</text>
+        </svg>
       </div>
 
-      <div class="mid">
-        <div class="l1">% da meta</div>
-        <div class="v1" id="rhProjPct">—</div>
+      <!-- Faturamento -->
+      <div class="home-card">
+        <div class="k">Faturamento</div>
+        <div class="v" id="homeFatVal">—</div>
+        <div class="hbar"><div id="homeFatBar"></div></div>
+        <div class="s"><span id="homeFatPct">—</span> <span class="muted">da meta</span></div>
       </div>
-</div>
-  </div>
 
+      <!-- Lucro -->
+      <div class="home-card home-lucro">
+        <div class="k">Lucro</div>
+        <div class="v" id="homeLucroVal">—</div>
+        <div class="home-lucro row2">
+          <div class="mini">
+            <div class="k">R$/kg</div>
+            <div class="v2" id="homeLucroKg">—</div>
+          </div>
+          <div class="mini">
+            <div class="k">Margem</div>
+            <div class="v2" id="homeLucroMargem">—</div>
+          </div>
+        </div>
+      </div>
 
-<div class="grid-kpi" id="kpiEmpresa"></div>
-
+      <!-- Projeção -->
+      <div class="home-card">
+        <div class="k">Projeção no ritmo atual</div>
+        <div class="v" id="homeProjVal">—</div>
+        <div class="hbar"><div id="homeProjBar"></div></div>
+        <div class="s"><span id="homeProjPct">—</span> <span class="muted">da meta</span></div>
+      </div>
+    </div>
 
   </div>
 
@@ -687,7 +772,8 @@ function setView(v){
 
   const fab=document.getElementById("fab");
   if(fab){
-    fab.style.display = (v==="produtos" || v==="vendedores") ? "flex" : "none";
+    // Mantém o acesso aos filtros em qualquer aba (HOME inclusive)
+    fab.style.display = "flex";
   }
 
   const h=document.getElementById("title");
@@ -766,7 +852,9 @@ function computeVendorSummary(rowsVendor, vendedor, ano, mes_num){
 }
 function render(){
   const mesLabel=getMesLabel(state.ano, state.mes_num);
-  document.getElementById("subPeriod").textContent = `Período: ${mesLabel}`;
+  // subPeriod existia em versões anteriores; mantém compatibilidade sem quebrar o render.
+  const sp=document.getElementById("subPeriod");
+  if(sp) sp.textContent = `Período: ${mesLabel}`;
 
   const empresaRows=getFilteredRows({ano:state.ano, mes_num:state.mes_num, time:state.time, produto:state.produto, vendedor:""});
   const fatEmp=sum(empresaRows,"valor_bruto");
@@ -874,101 +962,58 @@ function render(){
     else if (percMetaEmp <= esperado - tol) { status="red"; statusLabel="Abaixo do necessário"; }
     else { status="yellow"; statusLabel="Em linha"; }
   }
-const rhBarLbl = document.getElementById("rhBarLbl");
-  const rhWeeks = document.getElementById("rhWeeks");
-const rhRealBar = document.getElementById("rhRealBar");
-  const rhMark = document.getElementById("rhMark");
-  const rhDiasRest = document.getElementById("rhDiasRest");
-  const rhFatDia = document.getElementById("rhFatDia");
-  const rhKgDia = document.getElementById("rhKgDia");
-  const rhProjVal = document.getElementById("rhProjVal");
-  const rhProjPct = document.getElementById("rhProjPct");
 
-  if (rhRealBar) {
-    const realTxt = (percMetaEmp==null) ? "—" : fmtPct(percMetaEmp);
-    const espTxt = fmtPct(esperado);
+  // --- HOME (cards) ---
+  const setTxt = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
 
-    rhRealBar.style.width = `${(percMetaEmp==null?0:Math.max(0,Math.min(1,percMetaEmp))*100)}%`;
-    rhRealBar.style.background = stripeColor(status);
-    rhMark.style.left = `${Math.max(0,Math.min(1,esperado))*100}%`;
+  const setBar = (id, pct01) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const v = (pct01==null || isNaN(pct01)) ? 0 : clamp01(pct01);
+    el.style.width = `${(v*100).toFixed(2)}%`;
+  };
 
-    // Semanas (cards) — baseado na coluna SEMANA da planilha (sequência anual)
-    if (rhWeeks) {
-      // Semana atual = semana do último dia com venda no período (ou null)
-      const semanaAtual = (() => {
-        const ws = empresaRows.map(r => r.semana).filter(x => x!=null);
-        return ws.length ? ws.reduce((a,b)=>a>b?a:b) : null;
-      })();
-
-      // Weeks no mês (presentes na base) ordenadas
-      const weeks = Array.from(new Set(empresaRows.map(r => r.semana).filter(x => x!=null))).sort((a,b)=>a-b);
-
-      // Se não houver semana preenchida na base, não renderiza
-      rhWeeks.innerHTML = "";
-      if (weeks.length === 0) {
-        const div = document.createElement("div");
-        div.className = "wkcard current";
-        div.innerHTML = `<div class="t">Semanas</div><div class="v">—</div><div class="k">Sem dados de semana</div>`;
-        rhWeeks.appendChild(div);
-      } else {
-        // Para exibir "Semana 01/02/03" dentro do mês, mas mantendo o parâmetro anual:
-        // - semanas fechadas recebem numeração sequencial (01..)
-        // - semana atual mostra "Semana atual"
-        // Observação: consideramos fechada toda semana < semanaAtual
-        const closedWeeks = weeks.filter(w => semanaAtual==null ? true : w < semanaAtual);
-        const closedIndex = new Map();
-        closedWeeks.forEach((w, idx) => closedIndex.set(w, idx+1));
-
-        for (const w of weeks) {
-          const rowsW = empresaRows.filter(r => r.semana === w);
-          const fatW = sum(rowsW, "valor_bruto");
-          const kgW = sum(rowsW, "peso");
-
-          const isCurrent = (semanaAtual!=null && w === semanaAtual);
-          const label = isCurrent ? "Semana atual" : ("Semana " + String(closedIndex.get(w) || 0).padStart(2,"0"));
-
-          const div = document.createElement("div");
-          div.className = "wkcard" + (isCurrent ? " current" : "");
-          div.title = "Semana (ano): " + String(w);
-          div.innerHTML = `
-            <div class="t">${label}</div>
-            <div class="v">${fmtBRL(fatW)}</div>
-            <div class="k">${fmtNum(kgW,0)} kg</div>
-          `;
-          rhWeeks.appendChild(div);
-        }
-      }
+  const setRing = (ringId, txtId, pct01) => {
+    const ring = document.getElementById(ringId);
+    const txt = document.getElementById(txtId);
+    const v = (pct01==null || isNaN(pct01)) ? null : clamp01(pct01);
+    const C = 2 * Math.PI * 42; // r=42
+    if (ring) {
+      ring.setAttribute('stroke-dasharray', String(C));
+      ring.setAttribute('stroke-dashoffset', String(v==null ? C : (C*(1-v))));
     }
+    if (txt) txt.textContent = (v==null) ? "—" : fmtPct(v);
+  };
 
-    // Barra: % realizado
+  const periodPill = document.getElementById("periodPill");
+  if (periodPill) periodPill.textContent = `Período: ${mesLabel}`;
 
-    if (rhBarLbl) rhBarLbl.textContent = (percMetaEmp==null) ? "—" : (`% meta (mês): ${fmtPct(percMetaEmp)}`);
+  // Meta
+  setTxt("homeMetaVal", metaEmp>0 ? fmtBRL(metaEmp) : "—");
+  setTxt("homeMetaFalta", (falta!=null) ? fmtBRL(falta) : "—");
+  setRing("homeMetaRing", "homeMetaPct", percMetaEmp);
 
+  // Faturamento
+  setTxt("homeFatVal", fmtBRL(fatEmp));
+  setTxt("homeFatPct", (percMetaEmp==null) ? "—" : fmtPct(clamp01(percMetaEmp)));
+  setBar("homeFatBar", percMetaEmp);
 
-    
-    rhDiasRest.textContent = String(uteisRestantes);
-    rhFatDia.textContent = (fatDiaNec==null) ? "—" : fmtBRL(fatDiaNec);
-    rhKgDia.textContent = (kgDiaNec==null) ? "—" : (fmtNum(kgDiaNec, 0) + " kg");
+  // Lucro
+  setTxt("homeLucroVal", fmtBRL(lucroEmp));
+  const lucroKg = (kgEmp>0) ? (lucroEmp/kgEmp) : null;
+  setTxt("homeLucroKg", (lucroKg==null) ? "—" : fmtBRL(lucroKg));
+  const margem = (fatEmp>0) ? (lucroEmp/fatEmp) : null;
+  setTxt("homeLucroMargem", (margem==null) ? "—" : fmtPct(margem));
 
-    rhProjVal.textContent = (proj==null) ? "—" : fmtBRL(proj);
-    rhProjPct.textContent = (projPct==null) ? "—" : fmtPct(projPct);
-  }
+  // Projeção
+  setTxt("homeProjVal", (proj==null) ? "—" : fmtBRL(proj));
+  setTxt("homeProjPct", (projPct==null) ? "—" : fmtPct(clamp01(projPct)));
+  setBar("homeProjBar", projPct);
 
-
-
-  const pillSummary = document.getElementById("pillSummary");
-  pillSummary.classList.add("meta");
-  pillSummary.innerHTML = (metaEmp>0)
-    ? `<div class="t">Meta (Mês)</div><div class="v">${fmtBRL(metaEmp)}</div><div class="s">Falta: ${fmtBRL(falta)}</div>`
-    : `<div class="t">Meta (Mês)</div><div class="v">—</div><div class="s">Falta: —</div>`;
-  buildKpi(document.getElementById("kpiEmpresa"), [
-    {label:"Faturamento (R$)", value: fmtBRL(fatEmp)},
-    {label:"Volume (kg)", value: fmtNum(kgEmp,2)},
-    {label:"Lucro (R$)", value: fmtBRL(lucroEmp)},
-    {label:"Margem líquida (%)", value: (fatEmp>0) ? fmtPct(lucroEmp/fatEmp) : "—"}
-  ]);
-
-  const vendorList=distinct(empresaRows,"vendedor");
+const vendorList=distinct(empresaRows,"vendedor");
   let summaries=vendorList.map(v=>{
     const rowsV=empresaRows.filter(r=>r.vendedor===v);
     return computeVendorSummary(rowsV, v, state.ano, state.mes_num);
@@ -1415,10 +1460,12 @@ function initFilters(){
   document.getElementById("btnAplicar").addEventListener("click", ()=>{
     state.mes_num=Number(fMes.value);
     state.time=fTime.value; state.produto=fProduto.value; state.vendedor=fVendedor.value;
-    openDrawer(false); setDefaultPeriodToCurrentMonth();
-  setView(state.view||'home');
-  render();
-  if(state.vendedor) openVendorDetail(state.vendedor); if(state.produto && !state.vendedor) openProductDetail(state.produto);
+    openDrawer(false);
+    // mantém exatamente o período selecionado (não sobrescreve com mês atual)
+    setView(state.view||'home');
+    render();
+    if(state.vendedor) openVendorDetail(state.vendedor);
+    if(state.produto && !state.vendedor) openProductDetail(state.produto);
   });
   document.getElementById("btnLimpar").addEventListener("click", ()=>{
     state.time=""; state.produto=""; state.vendedor="";
@@ -1427,11 +1474,18 @@ function initFilters(){
   });
 }
 document.getElementById("fab").addEventListener("click", ()=>openDrawer(true));
+const mb=document.getElementById("menuBtn");
+if(mb) mb.addEventListener("click", ()=>openDrawer(true));
 document.getElementById("backdrop").addEventListener("click", ()=>openDrawer(false));
 document.getElementById("btnBack").addEventListener("click", ()=>{ document.getElementById("detail").classList.remove("open"); });
 document.getElementById("btnBackProduto").addEventListener("click", ()=>{ document.getElementById("pdetail").classList.remove("open"); });
 
 initFilters();
+
+// Define um período padrão (mês/ano) assim que o app abre,
+// para evitar que a tela carregue “vazia” quando não há filtros aplicados.
+setDefaultPeriodToCurrentMonth();
+setView(state.view || 'home');
 
 // Bottom navigation handlers
 (function(){
@@ -1443,7 +1497,7 @@ initFilters();
     });
   });
 })();
- render();
+render();
 </script>
 
 <script>

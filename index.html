@@ -382,6 +382,38 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 /* Keep content above nav */
 .wrap{ padding-bottom: 96px; }
 
+
+/* --- HOME (novo visual) --- */
+.home-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 10px;}
+.brandline{display:flex;align-items:center;gap:10px;}
+.brandlogo{height:34px;width:auto;display:block;filter:drop-shadow(0 10px 25px rgba(0,0,0,.45));}
+.period-chip{padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-size:13px;backdrop-filter:blur(10px);}
+.home-h1{font-size:22px;font-weight:750;letter-spacing:.2px;margin:14px 0 12px;}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.35);backdrop-filter:blur(12px);}
+.meta-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 16px;margin-bottom:12px;}
+.meta-left .k{color:var(--muted);font-size:13px;margin-bottom:6px;}
+.meta-left .v{font-size:24px;font-weight:800;letter-spacing:.2px;}
+.meta-left .s{margin-top:6px;color:var(--muted);font-size:13px;}
+.meta-ring{position:relative;width:94px;height:94px;display:grid;place-items:center;}
+.ring-svg{width:94px;height:94px;transform:rotate(-90deg);}
+.ring-track{fill:none;stroke:rgba(255,255,255,.10);stroke-width:10;}
+.ring-value{fill:none;stroke:rgba(46,204,113,.95);stroke-width:10;stroke-linecap:round;filter:url(#softGlow);stroke-dasharray:289;stroke-dashoffset:289;}
+.ring-text{position:absolute;inset:0;display:grid;place-items:center;transform:none;}
+.ring-text .pct{font-weight:850;font-size:16px;color:rgba(46,204,113,.95);}
+.kpi-card{padding:14px 14px;margin:0 0 12px;}
+.kpi-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.kpi-row .k{color:var(--muted);font-size:13px;}
+.kpi-row .v{font-size:18px;font-weight:800;}
+.kpi-row .v.right{text-align:right;}
+.bar{height:8px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;border:1px solid rgba(255,255,255,.06);}
+.fill{height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg, rgba(46,204,113,.25), rgba(46,204,113,.95));}
+.kpi-foot{margin-top:10px;color:var(--muted);font-size:13px;display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+.kpi-foot .pct{color:rgba(46,204,113,.95);font-weight:800;}
+.kpi-foot.split{justify-content:flex-start;color:var(--text);}
+.kpi-foot.split .muted{color:var(--muted);}
+.dot{width:4px;height:4px;border-radius:999px;background:rgba(255,255,255,.22);display:inline-block;margin:0 6px;}
+.legacy-hide{display:none;}
+
 </style>
 </head>
 <body>
@@ -406,67 +438,103 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
 <div class="wrap">
 
-  <div class="view active" id="view-home">
-    <!-- HOME: apenas números-chave do mês -->
-
-  <div class="topbar">
-    <div>
-      <div class="title">Painel Comercial — Vendedores</div>
-      <div class="subtitle" id="subPeriod">Período</div>
-    </div>
-    <div class="pill meta" id="pillSummary">—</div>
-  </div>
-
   
-  <div class="rhythm" id="rhythm">
-    <div class="rh-top">
-      <div>
-        <div class="rh-title">Acompanhamento do mês</div>
-      </div>
-</div>
+<div class="view active" id="view-home">
+  <!-- HOME (novo layout) -->
 
-    <div class="rh-bar" title="Realizado vs Esperado">
-      <div class="real" id="rhRealBar"></div>
-      <div class="mark" id="rhMark"></div>
-      <div class="lbl" id="rhBarLbl">—</div>
+  <div class="home-top">
+    <div class="brandline">
+      <img class="brandlogo" src="logo.png" alt="Vimacom"/>
     </div>
-
-    <div class="rh-weeks" id="rhWeeks"></div>
-
-    <div class="rh-mini">
-      <div class="box">
-        <div class="l">Dias restantes</div>
-        <div class="v" id="rhDiasRest">—</div>
-      </div>
-      <div class="box">
-        <div class="l">Faturar por dia (necessário)</div>
-        <div class="v" id="rhFatDia">—</div>
-      </div>
-      <div class="box">
-        <div class="l">Kg por dia (estimado)</div>
-        <div class="v" id="rhKgDia">—</div>
-      </div>
-    </div>
-
-    <div class="rh-proj">
-      <div>
-        <div class="l1">Projeção do mês (no ritmo atual)</div>
-        <div class="v1" id="rhProjVal">—</div>
-      </div>
-
-      <div class="mid">
-        <div class="l1">% da meta</div>
-        <div class="v1" id="rhProjPct">—</div>
-      </div>
-</div>
+    <div class="period-chip" id="subPeriod">Período: —</div>
   </div>
 
+  <div class="home-h1">Mês do mês</div>
 
-<div class="grid-kpi" id="kpiEmpresa"></div>
+  <div class="card meta-card">
+    <div class="meta-left">
+      <div class="k">Meta (Mês)</div>
+      <div class="v" id="homeMetaVal">—</div>
+      <div class="s">Falta: <span id="homeMetaFalta">—</span></div>
+    </div>
 
-
+    <div class="meta-ring" aria-label="Percentual da meta">
+      <svg viewBox="0 0 120 120" class="ring-svg" role="img">
+        <defs>
+          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2.2" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <circle class="ring-track" cx="60" cy="60" r="46"></circle>
+        <circle class="ring-value" cx="60" cy="60" r="46" id="homeRingCircle"></circle>
+      </svg>
+      <div class="ring-text">
+        <div class="pct" id="homeMetaPct">—</div>
+      </div>
+    </div>
   </div>
 
+  <div class="card kpi-card">
+    <div class="kpi-row">
+      <div class="k">Faturamento</div>
+      <div class="v right" id="homeFatVal">—</div>
+    </div>
+    <div class="bar">
+      <div class="fill" id="homeFatBar"></div>
+    </div>
+    <div class="kpi-foot">
+      <span class="pct" id="homeFatPct">—</span>
+    </div>
+  </div>
+
+  <div class="card kpi-card">
+    <div class="kpi-row">
+      <div class="k">Lucro</div>
+      <div class="v right" id="homeLucroVal">—</div>
+    </div>
+    <div class="kpi-foot split">
+      <span class="muted">R$/kg:</span> <span id="homeLucroKg">—</span>
+      <span class="dot"></span>
+      <span class="muted">Margem:</span> <span id="homeMargemPct">—</span>
+    </div>
+  </div>
+
+  <div class="card kpi-card">
+    <div class="kpi-row">
+      <div class="k">Projeção no ritmo atual</div>
+      <div class="v right" id="homeProjVal">—</div>
+    </div>
+    <div class="bar">
+      <div class="fill" id="homeProjBar"></div>
+    </div>
+    <div class="kpi-foot">
+      <span class="pct" id="homeProjPct">—</span>
+    </div>
+  </div>
+
+  <!-- Containers legados (invisíveis) pra não quebrar funções existentes, se você quiser reaproveitar depois -->
+  <div class="legacy-hide">
+    <div class="pill meta" id="pillSummary">—</div>
+    <div class="rhythm" id="rhythm">
+      <div class="rh-bar"><div class="real" id="rhRealBar"></div><div class="mark" id="rhMark"></div><div class="lbl" id="rhBarLbl">—</div></div>
+      <div class="rh-weeks" id="rhWeeks"></div>
+      <div class="rh-mini">
+        <div class="box"><div class="l">Dias restantes</div><div class="v" id="rhDiasRest">—</div></div>
+        <div class="box"><div class="l">Faturar por dia (necessário)</div><div class="v" id="rhFatDia">—</div></div>
+        <div class="box"><div class="l">Kg por dia (estimado)</div><div class="v" id="rhKgDia">—</div></div>
+      </div>
+      <div class="rh-proj">
+        <div><div class="l1">Projeção do mês (no ritmo atual)</div><div class="v1" id="rhProjVal">—</div></div>
+        <div class="mid"><div class="l1">% da meta</div><div class="v1" id="rhProjPct">—</div></div>
+      </div>
+    </div>
+    <div class="grid-kpi" id="kpiEmpresa"></div>
+  </div>
+</div>
 <div class="fab" id="fab" title="Filtros" aria-label="Abrir filtros">
   <span aria-hidden="true">
     <!-- Lucide: sliders-horizontal -->
@@ -874,6 +942,41 @@ function render(){
     else if (percMetaEmp <= esperado - tol) { status="red"; statusLabel="Abaixo do necessário"; }
     else { status="yellow"; statusLabel="Em linha"; }
   }
+
+  // --- HOME (novo layout) ---
+  const setText = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+  const setWidth = (id, pct01) => { const el = document.getElementById(id); if(!el) return; const p = Math.max(0, Math.min(1, pct01||0)); el.style.width = (p*100).toFixed(1) + "%"; };
+
+  // Meta
+  setText("homeMetaVal", metaEmp>0 ? fmtBRL(metaEmp) : "—");
+  setText("homeMetaFalta", (falta==null) ? "—" : fmtBRL(falta));
+  setText("homeMetaPct", (percMetaEmp==null) ? "—" : fmtPct(percMetaEmp));
+
+  // Ring
+  const ring = document.getElementById("homeRingCircle");
+  if (ring) {
+    const C = 2 * Math.PI * 46; // r=46 no SVG
+    const p = (percMetaEmp==null) ? 0 : Math.max(0, Math.min(1, percMetaEmp));
+    ring.style.strokeDasharray = String(C);
+    ring.style.strokeDashoffset = String(C * (1 - p));
+  }
+
+  // Faturamento
+  setText("homeFatVal", fmtBRL(fatEmp));
+  setText("homeFatPct", (percMetaEmp==null) ? "—" : (fmtPct(percMetaEmp) + " da meta"));
+  setWidth("homeFatBar", percMetaEmp);
+
+  // Lucro
+  setText("homeLucroVal", fmtBRL(lucroEmp));
+  const lucroKg = (kgEmp>0) ? (lucroEmp / kgEmp) : null;
+  setText("homeLucroKg", (lucroKg==null) ? "—" : fmtBRL(lucroKg));
+  setText("homeMargemPct", (fatEmp>0) ? fmtPct(lucroEmp/fatEmp) : "—");
+
+  // Projeção
+  setText("homeProjVal", (proj==null) ? "—" : fmtBRL(proj));
+  setText("homeProjPct", (projPct==null) ? "—" : (fmtPct(projPct) + " da meta"));
+  setWidth("homeProjBar", projPct);
+
 const rhBarLbl = document.getElementById("rhBarLbl");
   const rhWeeks = document.getElementById("rhWeeks");
 const rhRealBar = document.getElementById("rhRealBar");

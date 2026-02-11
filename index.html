@@ -67,7 +67,7 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
 
 .search{
   display:flex; align-items:center; gap:10px;
-  padding:12px 14px; border-radius:999px;
+  padding:10px 12px; border-radius:999px;
   background:rgba(255,255,255,.04);
   border:1px solid rgba(255,255,255,.08);
   box-shadow: var(--shadow);
@@ -99,8 +99,8 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
 .card.hero .thumb svg{width:34px;height:34px;fill:none;stroke:rgba(255,255,255,.9);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .card.hero .big{font-size:22px;font-weight:800;letter-spacing:.2px}
 .card.hero .sub{color:var(--muted);font-size:12px;margin-top:4px}
-.card.hero .kpis{display:flex;gap:14px;margin-top:14px}
-.card.hero .kpi{flex:1;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:10px}
+.card.hero .kpis{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+.card.hero .kpi{flex:1 1 120px;min-width:0;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:10px}
 .card.hero .kpi .label{color:var(--muted);font-size:11px}
 .card.hero .kpi .value{margin-top:4px;font-weight:800}
 
@@ -145,10 +145,10 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .btnrow{display:flex;gap:10px;margin-top:14px;}
 .btn{flex:1;padding:12px 10px;border-radius:14px;border:1px solid var(--line);background:rgba(18,26,43,.9);color:var(--text);cursor:pointer;font-weight:800;}
 .btn.primary{background:rgba(46,204,113,.20);border-color:rgba(46,204,113,.35);}
-.detail{display:none;position:fixed;inset:0;background:rgba(11,18,32,.94);z-index:40;overflow:auto;padding:16px 14px 90px;backdrop-filter:blur(16px);}
+.detail{display:none;position:fixed;inset:0;background:rgba(11,18,32,.94);z-index:40;overflow:auto;padding:14px 14px 110px;backdrop-filter:blur(16px);}
 .detail.open{display:block;}
-.detail .back{display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(18,26,43,.7);cursor:pointer;font-weight:800;}
-.detail .head{margin-top:10px;}
+.detail .back{position:sticky;top:12px;z-index:2;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);cursor:pointer;font-weight:800;backdrop-filter:blur(10px);}
+.detail .head{margin-top:12px;padding:14px 14px;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);box-shadow:0 14px 40px rgba(0,0,0,.35);backdrop-filter:blur(12px);}
 .detail .head .nm{font-size:20px;font-weight:950;}
 .detail .head .per{color:var(--muted);font-size:12px;margin-top:4px;}
 .cards2{display:flex;gap:10px;overflow-x:auto;padding:8px 2px 12px;}
@@ -475,10 +475,10 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   box-shadow: 0 0 0 1px rgba(46,204,113,0.18) inset;
 }
 /* Views */
-.view{display:none;}
+.view{display:none; padding-bottom: 110px;}
 .view.active{display:block;}
 /* Keep content above nav */
-.wrap{ padding-bottom: 96px; }
+.wrap{ padding-bottom: 120px; }
 
 
 /* --- HOME (novo visual) --- */
@@ -511,6 +511,8 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .kpi-foot.split .muted{color:var(--muted);}
 .dot{width:4px;height:4px;border-radius:999px;background:rgba(255,255,255,.22);display:inline-block;margin:0 6px;}
 .legacy-hide{display:none;}
+
+.topbar + .section{margin-top:6px;}
 
 </style>
 </head>
@@ -546,8 +548,8 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
         <img src="logo.png" alt="VIMACOM" />
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
-        <div class="pill" id="periodPill">Período: —</div>
-        <button class="iconbtn" id="menuBtn" aria-label="Abrir filtros" title="Filtros">
+        <div class="pill periodPill">Período: —</div>
+        <button class="iconbtn menuBtn" aria-label="Abrir filtros" title="Filtros">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="4" y1="6" x2="20" y2="6"></line>
             <line x1="4" y1="12" x2="20" y2="12"></line>
@@ -634,13 +636,24 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
   
   <div class="view" id="view-produtos">
-    <div class="section">
-      <div class="h2">
-        <div class="left">Produtos</div>
-        <div class="right"></div>
+    
+    <div class="topbar">
+      <div class="brand">
+        <img src="logo.png" alt="VIMACOM" />
       </div>
-
-      <div class="search">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="pill periodPill">Período: —</div>
+        <button class="iconbtn menuBtn" aria-label="Abrir filtros" title="Filtros">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16"/>
+            <path d="M4 12h16"/>
+            <path d="M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+<div class="section">
+<div class="search">
         <div class="sico" aria-hidden="true">
           <!-- lucide: search -->
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -672,12 +685,23 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
   <div class="view" id="view-vendedores">
 
-    <div class="section">
-      <div class="h2">
-        <div class="left">Vendedores</div>
-        <div class="right">Toque em um vendedor para ver detalhes</div>
+    
+    <div class="topbar">
+      <div class="brand">
+        <img src="logo.png" alt="VIMACOM" />
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="pill periodPill">Período: —</div>
+        <button class="iconbtn menuBtn" aria-label="Abrir filtros" title="Filtros">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 6h16"/>
+            <path d="M4 12h16"/>
+            <path d="M4 18h16"/>
+          </svg>
+        </button>
       </div>
     </div>
+
     <div class="section">
     <div class="h2">
       <div class="left">Carrossel por vendedor</div>
@@ -1065,8 +1089,7 @@ function render(){
     if (txt) txt.textContent = (v==null) ? "—" : fmtPct(v);
   };
 
-  const periodPill = document.getElementById("periodPill");
-  if (periodPill) periodPill.textContent = `Período: ${mesLabel}`;
+  document.querySelectorAll(".periodPill").forEach(el=>{ el.textContent = `Período: ${mesLabel}`; });
 
   // Meta
   setTxt("homeMetaVal", metaEmp>0 ? fmtBRL(metaEmp) : "—");
@@ -1579,8 +1602,7 @@ function initFilters(){
   });
 }
 document.getElementById("fab").addEventListener("click", ()=>openDrawer(true));
-const mb=document.getElementById("menuBtn");
-if(mb) mb.addEventListener("click", ()=>openDrawer(true));
+document.querySelectorAll(".menuBtn").forEach(btn=>btn.addEventListener("click", ()=>openDrawer(true)));
 document.getElementById("backdrop").addEventListener("click", ()=>openDrawer(false));
 document.getElementById("btnBack").addEventListener("click", ()=>{ document.getElementById("detail").classList.remove("open"); });
 document.getElementById("btnBackProduto").addEventListener("click", ()=>{ document.getElementById("pdetail").classList.remove("open"); });

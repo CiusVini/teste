@@ -474,48 +474,6 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   background:rgba(46,204,113,0.14);
   box-shadow: 0 0 0 1px rgba(46,204,113,0.18) inset;
 }
-
-/* Page header (Produtos / Vendedores) */
-.pagebar{
-  position: sticky;
-  top: 0;
-  z-index: 6;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding: 6px 0 10px;
-  backdrop-filter: blur(10px);
-}
-.pageTitle{
-  font-weight: 900;
-  font-size: 22px;
-  letter-spacing: .2px;
-}
-
-/* Remove 'empty top' feeling on mobile */
-@media (max-width: 520px){
-  .wrap{ padding-top: 10px; }
-  .pagebar{ padding-top: 4px; padding-bottom: 8px; }
-  .section{ margin-top: 12px; }
-}
-
-/* Featured card must be full-width (it uses .card.hero) */
-.card.hero{
-  width: 100%;
-  max-width: none !important;
-  min-width: 0 !important;
-}
-
-/* Vendor carousel: 1 card per screen on mobile */
-@media (max-width: 520px){
-  .carousel{ padding-left: 2px; padding-right: 2px; }
-  .carousel .card{
-    min-width: calc(100% - 4px);
-    max-width: calc(100% - 4px);
-  }
-}
-
 /* Views */
 .view{display:none; padding-bottom: 110px;}
 .view.active{display:block;}
@@ -555,6 +513,37 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .legacy-hide{display:none;}
 
 .topbar + .section{margin-top:6px;}
+
+
+
+/* --- Ajustes finos: Produtos & Vendedores (layout mais "cheio" e sem espaço sobrando) --- */
+.topbar.compact{
+  padding: 10px 0 8px;
+}
+.titlePage{
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  color: #e8eefc;
+}
+@media (max-width: 520px){
+  .titlePage{ font-size: 26px; }
+}
+
+/* HERO (produto em destaque) deve ocupar 100% da largura */
+#view-produtos .card.hero{
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+/* Carrossel de vendedores: 1 card por vez, largura total */
+#view-vendedores .carousel .card{
+  flex: 0 0 calc(100% - 20px);
+  min-width: calc(100% - 20px);
+  max-width: calc(100% - 20px);
+  scroll-snap-align: start;
+}
 
 </style>
 </head>
@@ -679,18 +668,9 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   
   <div class="view" id="view-produtos">
     
-    
-    <div class="pagebar">
-      <div class="pageTitle">Produtos</div>
-      <button class="iconbtn menuBtn" aria-label="Abrir filtros" title="Filtros">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 6h16"/>
-          <path d="M4 12h16"/>
-          <path d="M4 18h16"/>
-        </svg>
-      </button>
-    </div>
-<div style="display:flex;align-items:center;gap:10px;">
+    <div class="topbar compact">
+      <div class="titlePage">Produtos</div>
+      <div style="display:flex;align-items:center;gap:10px;">
         <div class="pill periodPill">Período: —</div>
         <button class="iconbtn menuBtn" aria-label="Abrir filtros" title="Filtros">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -701,6 +681,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
         </button>
       </div>
     </div>
+
 <div class="section">
 <div class="search">
         <div class="sico" aria-hidden="true">
@@ -733,17 +714,11 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   </div>
 
   <div class="view" id="view-vendedores">
-    <div class="pagebar">
-      <div class="pageTitle">Vendedores</div>
-      <button class="iconbtn menuBtn" aria-label="Abrir filtros" title="Filtros">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 6h16"/>
-          <path d="M4 12h16"/>
-          <path d="M4 18h16"/>
-        </svg>
-      </button>
-    </div>
-<div style="display:flex;align-items:center;gap:10px;">
+
+    
+    <div class="topbar compact">
+      <div class="titlePage">Vendedores</div>
+      <div style="display:flex;align-items:center;gap:10px;">
         <div class="pill periodPill">Período: —</div>
         <button class="iconbtn menuBtn" aria-label="Abrir filtros" title="Filtros">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -754,6 +729,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
         </button>
       </div>
     </div>
+
 
     <div class="section">
     <div class="h2">

@@ -321,12 +321,14 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
     scroll-snap-type: x mandatory;
   }
   .carousel .card{
-    min-width: 280px;
-    max-width: 280px;
+    /* 1 card por vez (mobile) */
+    min-width: calc(100% - 8px);
+    max-width: calc(100% - 8px);
     scroll-snap-align: start;
   }
-  @media (max-width: 520px){
-    .carousel .card{ min-width: 260px; max-width: 260px; }
+  /* Em telas maiores, mantém um tamanho confortável */
+  @media (min-width: 521px){
+    .carousel .card{ min-width: 420px; max-width: 420px; }
   }
   .carousel::-webkit-scrollbar{ height: 8px; }
   .carousel::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.12); border-radius: 999px; }
@@ -513,6 +515,13 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .legacy-hide{display:none;}
 
 .topbar + .section{margin-top:6px;}
+
+/* Ajuste: remover "espaço vazio" no topo em Produtos e Vendedores */
+#view-produtos .topbar,
+#view-vendedores .topbar{
+  padding-top: 0;
+  margin-top: -18px; /* compensa o padding-top do .wrap */
+}
 
 </style>
 </head>

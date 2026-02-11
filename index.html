@@ -166,6 +166,15 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .mini .box .l{color:var(--muted);font-size:12px;}
 .mini .box .v{font-weight:950;margin-top:4px;}
 
+/* Histórico (listas simples) */
+.hlist{display:flex;flex-direction:column;gap:10px;margin-top:10px;}
+.hrow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:16px;background:rgba(18,26,43,.70);border:1px solid rgba(255,255,255,.07);box-shadow:var(--shadow);}
+.hrow .m{font-weight:950;font-size:13px;letter-spacing:.2px;white-space:nowrap;}
+.hrow .nums{flex:1;min-width:0;text-align:right;}
+.hrow .nums .line1{font-weight:950;font-size:14px;}
+.hrow .nums .line2{color:var(--muted);font-size:12px;margin-top:4px;}
+.hrow.small .nums .line1{font-size:14px;}
+
   /* Ritmo do mês */
   .rhythm {
     margin-top: 10px;
@@ -739,6 +748,11 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
     <div class="carousel" id="carousel"></div>
   </div>
 
+  <div class="section">
+    <div class="h2"><div class="left" style="font-size:15px;">Histórico de vendas</div><div class="right">Mês • Valor</div></div>
+    <div class="hlist" id="vendHistorico"></div>
+  </div>
+
   </div>
 
 <div class="detail" id="detail">
@@ -799,8 +813,8 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   </div>
 
   <div class="section">
-    <div class="h2"><div class="left">Top vendedores do produto</div><div class="right">Valor • Kg • Lucro</div></div>
-    <div class="prodlist" id="pVendedores"></div>
+    <div class="h2"><div class="left" style="font-size:15px;">Histórico de vendas</div><div class="right">Mês • Valor • Kg • Preço médio</div></div>
+    <div class="hlist" id="pHistorico"></div>
   </div>
 </div>
 
@@ -936,6 +950,27 @@ function getMesLabel(ano, mes_num){
   const list = (MESES_BY_ANO[ano]||[]);
   const found = list.find(x=>x.mes_num===mes_num);
   return found ? found.label : String(mes_num).padStart(2,'0') + "/" + ano;
+}
+
+// Label curto: Jan/26, Fev/26...
+const MES_ABBR = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+function getMesLabelCurto(ano, mes_num){
+  const mm = Math.max(1, Math.min(12, Number(mes_num)||1));
+  const aa = String(ano).slice(-2);
+  return `${MES_ABBR[mm-1]}/${aa}`;
+}
+
+function getPeriodosDesc(){
+  const arr=[];
+  for(const aStr of Object.keys(MESES_BY_ANO||{})){
+    const a=Number(aStr);
+    const list=(MESES_BY_ANO[a]||[]);
+    for(const m of list){
+      arr.push({ano:a, mes_num:Number(m.mes_num)||1});
+    }
+  }
+  arr.sort((x,y)=> (y.ano-x.ano) || (y.mes_num-x.mes_num));
+  return arr;
 }
 function statusFromPacing(perc, ano, mes_num){
   const now=new Date();
@@ -1249,6 +1284,7 @@ const vendorList=distinct(empresaRows,"vendedor");
   for(const s of summaries){
     const card=document.createElement("div");
     card.className="card";
+    card.dataset.vendedor = s.vendedor;
     const stripe=document.createElement("div");
     stripe.className="stripe";
     stripe.style.background=stripeColor(s.status);
@@ -1289,6 +1325,94 @@ const vendorList=distinct(empresaRows,"vendedor");
     `;
     card.addEventListener("click", ()=>openVendorDetail(s.vendedor));
     carousel.appendChild(card);
+  }
+
+  // Histórico do vendedor (aba Vendedores)
+  const histTarget = document.getElementById("vendHistorico");
+  if(histTarget){
+    const setVendHistory = (vend)=>{
+  histTarget.innerHTML="";
+  if(!vend){
+    const row=document.createElement("div");
+    row.className="hrow";
+    row.innerHTML = `<div class="m">—</div><div class="nums"><div class="line1">Sem vendedores</div><div class="line2">...</div></div>`;
+    histTarget.appendChild(row);
+    return;
+  }
+
+  const periods=getPeriodosDesc();
+  let count=0;
+  let prevValor=null;
+
+  for(const per of periods){
+    const rowsM = getFilteredRows({ano:per.ano, mes_num:per.mes_num, time:state.time, produto:state.produto, vendedor:vend});
+    const v=sum(rowsM,"valor_bruto");
+    const k=sum(rowsM,"peso");
+    if(v<=0 && k<=0) continue;
+
+    let indicator="—";
+    if(prevValor!==null){
+      const diff = ((v - prevValor) / prevValor) * 100;
+      if(diff>0){
+        indicator = `<span style="color:var(--green);font-weight:700">↑ ${diff.toFixed(1)}%</span>`;
+      }else if(diff<0){
+        indicator = `<span style="color:var(--red);font-weight:700">↓ ${diff.toFixed(1)}%</span>`;
+      }else{
+        indicator = `<span style="color:var(--neutral)">0%</span>`;
+      }
+    }
+
+    const row=document.createElement("div");
+    row.className="hrow";
+    row.innerHTML = `
+      <div class="m">${getMesLabelCurto(per.ano, per.mes_num)}</div>
+      <div class="nums">
+        <div class="line1">${fmtBRL(v)} • ${fmtNum(k,0)} kg ${indicator}</div>
+      </div>
+    `;
+    histTarget.appendChild(row);
+
+    prevValor=v;
+    count++;
+    if(count>=18) break;
+  }
+
+  if(count===0){
+    const row=document.createElement("div");
+    row.className="hrow";
+    row.innerHTML = `<div class="m">—</div><div class="nums"><div class="line1">Sem histórico</div><div class="line2">Sem vendas para os filtros atuais</div></div>`;
+    histTarget.appendChild(row);
+  }
+};
+
+
+    const pickCenteredVendor = ()=>{
+      const cards=[...carousel.children];
+      if(cards.length===0) return "";
+      const viewport=carousel.getBoundingClientRect();
+      const center=viewport.left + viewport.width/2;
+      let best=cards[0], bestDist=Infinity;
+      for(const c of cards){
+        const r=c.getBoundingClientRect();
+        const cCenter=r.left + r.width/2;
+        const dist=Math.abs(cCenter-center);
+        if(dist<bestDist){ bestDist=dist; best=c; }
+      }
+      return best?.dataset?.vendedor || "";
+    };
+
+    // inicial
+    setVendHistory(summaries?.[0]?.vendedor || pickCenteredVendor());
+
+    // atualiza ao rolar
+    let t=null;
+    carousel.addEventListener("scroll", ()=>{
+      if(t) clearTimeout(t);
+      t=setTimeout(()=>{
+        const vend = pickCenteredVendor();
+        setVendHistory(vend);
+      }, 120);
+    });
   }
 }
 
@@ -1546,34 +1670,36 @@ function openProductDetail(produto){
       {label:"Margem líquida (%)", value: margemPct==null ? "—" : fmtPct(margemPct)},
     ]);
 
-    // Top vendedores do produto
-    const byVend = new Map();
-    for(const r of rowsP){
-      const key=r.vendedor||"—";
-      if(!byVend.has(key)) byVend.set(key, []);
-      byVend.get(key).push(r);
-    }
-    const top = Array.from(byVend.entries()).map(([vend, rows])=>{
-      const v=sum(rows,"valor_bruto"), k=sum(rows,"peso"), l=sum(rows,"lucro");
-      const preco=(k>0)?(v/k):null;
-      return {vendedor:vend, valor:v, kg:k, lucro:l, preco};
-    }).sort((a,b)=>b.valor-a.valor);
+    // Histórico mensal do produto (todos os meses disponíveis)
+    const histBox=document.getElementById("pHistorico");
+    histBox.innerHTML="";
+    const periods=getPeriodosDesc();
+    let count=0;
+    for(const per of periods){
+      const rowsM = getFilteredRows({ano:per.ano, mes_num:per.mes_num, time:state.time, produto:produto, vendedor:""});
+      const v=sum(rowsM,"valor_bruto");
+      const k=sum(rowsM,"peso");
+      if(v<=0 && k<=0) continue;
+      const preco = (k>0) ? (v/k) : null;
 
-    const box=document.getElementById("pVendedores");
-    box.innerHTML="";
-    for(const t of top.slice(0,8)){
-      const div=document.createElement("div");
-      div.className="prodcard";
-      div.innerHTML = `
-        <div class="pname">${t.vendedor}</div>
-        <div class="sub">Preço médio: ${t.preco==null ? "—" : fmtBRL(t.preco)} • Lucro: ${fmtBRL(t.lucro)}</div>
-        <div class="mini">
-          <div class="box"><div class="l">Kg</div><div class="v">${fmtNum(t.kg,2)}</div></div>
-          <div class="box"><div class="l">Valor</div><div class="v">${fmtBRL(t.valor)}</div></div>
-          <div class="box"><div class="l">Lucro</div><div class="v">${fmtBRL(t.lucro)}</div></div>
+      const row=document.createElement("div");
+      row.className="hrow";
+      row.innerHTML = `
+        <div class="m">${getMesLabelCurto(per.ano, per.mes_num)}</div>
+        <div class="nums">
+          <div class="line1">${fmtBRL(v)} • ${fmtNum(k,0)} kg</div>
+          <div class="line2">Preço médio: ${preco==null ? "—" : fmtBRL(preco)}/kg</div>
         </div>
       `;
-      box.appendChild(div);
+      histBox.appendChild(row);
+      count++;
+      if(count>=18) break; // últimos 18 meses
+    }
+    if(count===0){
+      const row=document.createElement("div");
+      row.className="hrow";
+      row.innerHTML = `<div class="m">—</div><div class="nums"><div class="line1">Sem histórico</div><div class="line2">Sem dados para o produto</div></div>`;
+      histBox.appendChild(row);
     }
 
     document.getElementById("pdetail").classList.add("open");

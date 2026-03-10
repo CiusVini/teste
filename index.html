@@ -1016,6 +1016,96 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   background:rgba(231,76,60,.10);
 }
 
+
+/* Ajustes finos mobile: Resultados + Rentabilidade */
+.hbar.with-label{
+  position:relative;
+}
+.hbar.with-label .bar-label{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:900;
+  color:rgba(232,238,252,.92);
+  text-shadow:0 1px 8px rgba(0,0,0,.42);
+  pointer-events:none;
+}
+@media (max-width:520px){
+  #cardMetaAnual{
+    display:block;
+  }
+  #cardMetaAnual .ring{
+    display:none !important;
+  }
+  #cardMetaAnual .v{
+    font-size:26px;
+    line-height:1.05;
+  }
+  #cardMetaAnual .sub{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  #cardMetaAnual .sub span[style]{
+    float:none !important;
+  }
+  .rent-card{
+    padding:14px 12px;
+  }
+  .rent-card .top{
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .rent-card .title{
+    font-size:14px;
+    line-height:1.2;
+  }
+  .rent-card .sub{
+    font-size:11px;
+  }
+  .rent-list{
+    gap:8px;
+  }
+  .rent-row{
+    gap:8px;
+    padding:10px 12px;
+  }
+  .rent-row .left{
+    min-width:0;
+  }
+  .rent-row .name{
+    font-size:12px;
+    line-height:1.2;
+    white-space:normal;
+    overflow:visible;
+    text-overflow:unset;
+    word-break:break-word;
+  }
+  .rent-row .meta,
+  .rent-row .aux{
+    font-size:11px;
+    line-height:1.25;
+    white-space:normal;
+  }
+  .rent-row .right{
+    flex:0 0 auto;
+    max-width:40%;
+  }
+  .rent-row .main{
+    font-size:15px;
+    line-height:1.1;
+  }
+  .rent-chip{
+    padding:5px 8px;
+    font-size:10px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -1526,7 +1616,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
             <span>Faturamento acumulado</span>
             <span style="float:right;font-weight:700;" id="resFatAnoMeta">—</span>
           </div>
-          <div class="hbar" style="margin-top:10px;"><div id="resMetaBar"></div></div>
+          <div class="hbar with-label" style="margin-top:10px;"><div id="resMetaBar"></div><div class="bar-label" id="resMetaBarLabel">—</div></div>
           <div class="res-proj-row" id="resProjLine"><div class="proj-left"><span class="label">Projeção no ritmo atual:</span><span class="value" id="resProjVal">—</span></div><span class="proj-pct" id="resProjPct">—</span></div>
           <div class="res-gap-row" id="resGapLine"><span class="label">Diferença para meta:</span><span class="value" id="resProjGap">—</span></div>
         </div>
@@ -3171,7 +3261,9 @@ const vendorListBase=distinct(empresaRows,"vendedor");
     setTxt("resFatAnoMeta", fatAno>0 ? fmtBRL(fatAno) : fmtBRL(0));
     setTxt("resFatAnoVal", fatAno>0 ? fmtBRL(fatAno) : fmtBRL(0));
     setTxt("resKgAnoLine", kgAno>0 ? (`Peso total: ${fmtKg(kgAno)}`) : "—");
-    setTxt("resMetaPct", pct==null ? "—" : fmtPct(clamp01(pct)));
+    const pctMetaTxt = pct==null ? "—" : fmtPct(clamp01(pct));
+    setTxt("resMetaPct", pctMetaTxt);
+    setTxt("resMetaBarLabel", pctMetaTxt);
     const mb=document.getElementById("resMetaBar");
     if(mb) mb.style.width = (pct==null? "0%": `${Math.round(clamp01(pct)*100)}%`);
 

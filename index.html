@@ -1016,96 +1016,6 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   background:rgba(231,76,60,.10);
 }
 
-
-/* Ajustes finos mobile: Resultados + Rentabilidade */
-.hbar.with-label{
-  position:relative;
-}
-.hbar.with-label .bar-label{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:11px;
-  font-weight:900;
-  color:rgba(232,238,252,.92);
-  text-shadow:0 1px 8px rgba(0,0,0,.42);
-  pointer-events:none;
-}
-@media (max-width:520px){
-  #cardMetaAnual{
-    display:block;
-  }
-  #cardMetaAnual .ring{
-    display:none !important;
-  }
-  #cardMetaAnual .v{
-    font-size:26px;
-    line-height:1.05;
-  }
-  #cardMetaAnual .sub{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:8px;
-    flex-wrap:wrap;
-  }
-  #cardMetaAnual .sub span[style]{
-    float:none !important;
-  }
-  .rent-card{
-    padding:14px 12px;
-  }
-  .rent-card .top{
-    gap:10px;
-    margin-bottom:10px;
-  }
-  .rent-card .title{
-    font-size:14px;
-    line-height:1.2;
-  }
-  .rent-card .sub{
-    font-size:11px;
-  }
-  .rent-list{
-    gap:8px;
-  }
-  .rent-row{
-    gap:8px;
-    padding:10px 12px;
-  }
-  .rent-row .left{
-    min-width:0;
-  }
-  .rent-row .name{
-    font-size:12px;
-    line-height:1.2;
-    white-space:normal;
-    overflow:visible;
-    text-overflow:unset;
-    word-break:break-word;
-  }
-  .rent-row .meta,
-  .rent-row .aux{
-    font-size:11px;
-    line-height:1.25;
-    white-space:normal;
-  }
-  .rent-row .right{
-    flex:0 0 auto;
-    max-width:40%;
-  }
-  .rent-row .main{
-    font-size:15px;
-    line-height:1.1;
-  }
-  .rent-chip{
-    padding:5px 8px;
-    font-size:10px;
-  }
-}
-
 </style>
 </head>
 <body>
@@ -1616,7 +1526,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
             <span>Faturamento acumulado</span>
             <span style="float:right;font-weight:700;" id="resFatAnoMeta">—</span>
           </div>
-          <div class="hbar with-label" style="margin-top:10px;"><div id="resMetaBar"></div><div class="bar-label" id="resMetaBarLabel">—</div></div>
+          <div class="hbar" style="margin-top:10px;"><div id="resMetaBar"></div></div>
           <div class="res-proj-row" id="resProjLine"><div class="proj-left"><span class="label">Projeção no ritmo atual:</span><span class="value" id="resProjVal">—</span></div><span class="proj-pct" id="resProjPct">—</span></div>
           <div class="res-gap-row" id="resGapLine"><span class="label">Diferença para meta:</span><span class="value" id="resProjGap">—</span></div>
         </div>
@@ -1716,6 +1626,16 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
     <div class="res-subview" id="resSubviewRentabilidade">
       <div class="home-cards">
+        <div class="home-card" style="padding:14px 16px;">
+          <div class="h2" style="margin:0 0 10px 0;">
+            <div class="left">Período da rentabilidade</div>
+            <div class="right">Rankings e drill-down</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="chip" id="rentScopeMes" type="button">Mês</button>
+            <button class="chip" id="rentScopeAno" type="button">Ano</button>
+          </div>
+        </div>
         <div class="rent-grid">
           <div class="rent-card">
             <div class="top">
@@ -1876,6 +1796,34 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
         <div class="v" id="rentSaleRegiao">—</div>
       </div>
     </div>
+  </div>
+
+<div class="detail" id="rentVendorDetail">
+  <div class="back" id="btnBackRentVendor">← Voltar</div>
+  <div class="errbox" id="rentVendorError" style="display:none"></div>
+  <div class="head">
+    <div class="nm" id="rentVendorNome">—</div>
+    <div class="per" id="rentVendorPeriodo">—</div>
+  </div>
+
+  <div class="section">
+    <div class="h2"><div class="left">Resumo do vendedor</div><div class="right" id="rentVendorStatus">—</div></div>
+    <div class="sale-detail-grid" id="rentVendorResumo"></div>
+  </div>
+
+  <div class="section">
+    <div class="h2"><div class="left">Top clientes</div><div class="right">Valor • Lucro • Share</div></div>
+    <div class="prodlist" id="rentVendorClientes"></div>
+  </div>
+
+  <div class="section">
+    <div class="h2"><div class="left">Top produtos</div><div class="right">Valor • Kg • Margem/kg</div></div>
+    <div class="prodlist" id="rentVendorProdutos"></div>
+  </div>
+
+  <div class="section">
+    <div class="h2"><div class="left">NFs do período</div><div class="right">Valor • Lucro</div></div>
+    <div class="hlist" id="rentVendorNFs"></div>
   </div>
 </div>
 
@@ -2041,7 +1989,7 @@ const __latest = BASE.reduce((acc,r)=>{
   if (a>acc.ano || (a===acc.ano && m>acc.mes_num)) return {ano:a, mes_num:m};
   return acc;
 },{ano:0, mes_num:0});
-const state = { ano: __latest.ano||2026, mes_num: __latest.mes_num||2, time:"", produto:"", vendedor:"" , view:"home", resTab:"resultados", prodQuery:"", auth:null, vendedorBloqueado:""};
+const state = { ano: __latest.ano||2026, mes_num: __latest.mes_num||2, time:"", produto:"", vendedor:"" , view:"home", resTab:"resultados", prodQuery:"", auth:null, vendedorBloqueado:"", cliScope:"ano", rentScope:"mes"};
 
 
 function normalizarTexto(texto){
@@ -2460,6 +2408,130 @@ function aggregateSaleItems(items){
     it.margem_pct = it.valor_bruto>0 ? it.lucro/it.valor_bruto : null;
     return it;
   }).sort((a,b)=>(b.margem_liquida??-Infinity)-(a.margem_liquida??-Infinity));
+}
+
+
+function openRentClientDetail(cliente, scope){
+  const prev = state.cliScope;
+  try{
+    state.cliScope = scope || "mes";
+    openClientDetail(cliente);
+  } finally {
+    state.cliScope = prev;
+  }
+}
+
+function openRentVendorDetail(vendedor, scope){
+  const rowsVendor = getRowsByScope(scope || "mes", {ano:state.ano, mes_num:state.mes_num, time:state.time, produto:state.produto, vendedor});
+  const empresaRows = getRowsByScope(scope || "mes", {ano:state.ano, mes_num:state.mes_num, time:state.time, produto:state.produto, vendedor:""});
+  const periodLabel = getRentScopeLabel(scope || "mes");
+  const err=document.getElementById("rentVendorError");
+  if(err){ err.style.display='none'; err.textContent=''; }
+  const setTxt=(id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+  setTxt("rentVendorNome", vendedor || "—");
+  setTxt("rentVendorPeriodo", `Período: ${periodLabel}`);
+  if(!rowsVendor.length){
+    if(err){ err.style.display='block'; err.textContent='Sem dados para este vendedor com os filtros atuais.'; }
+    const el=document.getElementById("rentVendorDetail"); if(el) el.classList.add("open");
+    return;
+  }
+
+  const fat = sum(rowsVendor,"valor_bruto");
+  const kg = sum(rowsVendor,"peso");
+  const lucro = sum(rowsVendor,"lucro");
+  const margemKg = kg>0 ? lucro/kg : null;
+  const shareFat = safeDiv(fat, sum(empresaRows,"valor_bruto"));
+  const shareLucro = safeDiv(lucro, sum(empresaRows,"lucro"));
+  setTxt("rentVendorStatus", `${scope==="ano" ? "Ano" : "Mês"} • ${shareLucro==null ? "—" : fmtPct(shareLucro)} do lucro`);
+
+  const resumo = [
+    {label:"Faturamento", value: fmtBRL(fat)},
+    {label:"Lucro", value: fmtBRL(lucro), cls:'res-op-positive'},
+    {label:"Margem/kg", value: margemKg==null ? "—" : fmtBRL(margemKg)+"/kg", cls: marginClassByValue(margemKg)},
+    {label:"Peso total", value: fmtKg(kg,2)},
+    {label:"Share faturamento", value: shareFat==null ? "—" : fmtPct(shareFat)},
+    {label:"Share lucro", value: shareLucro==null ? "—" : fmtPct(shareLucro)}
+  ];
+  const resumoEl=document.getElementById("rentVendorResumo");
+  if(resumoEl){
+    resumoEl.innerHTML='';
+    resumo.forEach(item=>{
+      const box=document.createElement('div');
+      box.className='box';
+      box.innerHTML=`<div class="l">${item.label}</div><div class="v ${item.cls||''}">${item.value}</div>`;
+      resumoEl.appendChild(box);
+    });
+  }
+
+  const byCliente = Array.from(new Set(rowsVendor.map(r=>r.cliente).filter(Boolean))).map(nome=>{
+    const rr = rowsVendor.filter(r=>r.cliente===nome);
+    const v=sum(rr,'valor_bruto'), k=sum(rr,'peso'), l=sum(rr,'lucro');
+    return {nome, valor:v, kg:k, lucro:l, share:safeDiv(l,lucro), margemKg:k>0?l/k:null};
+  }).sort((a,b)=>b.lucro-a.lucro).slice(0,5);
+  const cliEl=document.getElementById("rentVendorClientes");
+  if(cliEl){
+    cliEl.innerHTML = byCliente.map(c=>`
+      <div class="prodcard">
+        <div class="row" style="align-items:flex-start;">
+          <div>
+            <div class="pname">${c.nome}</div>
+            <div class="sub">${fmtCompactShort(c.valor)} • ${fmtKgCompact(c.kg)} • ${c.share==null?'—':fmtPct(c.share)} do lucro</div>
+          </div>
+          <div class="val res-op-positive" style="font-weight:950;">${fmtCompactShort(c.lucro)}</div>
+        </div>
+      </div>
+    `).join('') || '<div class="prodcard"><div class="pname">Sem dados</div></div>';
+  }
+
+  const byProd = Array.from(new Set(rowsVendor.map(r=>r.produto).filter(Boolean))).map(produto=>{
+    const rr = rowsVendor.filter(r=>r.produto===produto);
+    const v=sum(rr,'valor_bruto'), k=sum(rr,'peso'), l=sum(rr,'lucro');
+    return {produto, valor:v, kg:k, lucro:l, margemKg:k>0?l/k:null};
+  }).sort((a,b)=>b.lucro-a.lucro).slice(0,6);
+  const prodEl=document.getElementById("rentVendorProdutos");
+  if(prodEl){
+    prodEl.innerHTML = byProd.map(p=>`
+      <div class="prodcard">
+        <div class="row" style="align-items:flex-start;">
+          <div>
+            <div class="pname">${p.produto}</div>
+            <div class="sub">${fmtCompactShort(p.valor)} • ${fmtKgCompact(p.kg)}</div>
+          </div>
+          <div class="val ${marginClassByValue(p.margemKg)}" style="font-weight:950;">${p.margemKg==null?'—':fmtBRL(p.margemKg)+'/kg'}</div>
+        </div>
+      </div>
+    `).join('') || '<div class="prodcard"><div class="pname">Sem dados</div></div>';
+  }
+
+  const sales = aggregateSales(rowsVendor).sort((a,b)=>(b.lucro||0)-(a.lucro||0)).slice(0,10);
+  const nfEl=document.getElementById("rentVendorNFs");
+  if(nfEl){
+    nfEl.innerHTML='';
+    if(!sales.length){
+      nfEl.innerHTML='<div class="hrow"><div class="m">Sem NFs</div><div class="nums"><div class="line1">—</div></div></div>';
+    }else{
+      sales.forEach(sale=>{
+        const row=document.createElement('div');
+        row.className='hrow';
+        row.style.cursor='pointer';
+        row.innerHTML=`
+          <div>
+            <div class="name">${sale.nf ? 'NF ' + sale.nf : 'Sem NF'}</div>
+            <div class="meta">${sale.cliente || '—'} • ${fmtDateBR(parseISO(sale.data))}</div>
+          </div>
+          <div class="right">
+            <div class="val">${fmtCompactShort(sale.lucro)}</div>
+            <div class="meta">${fmtCompactShort(sale.valor_bruto)} • ${sale.margem_liquida==null?'—':fmtBRL(sale.margem_liquida)+'/kg'}</div>
+          </div>
+        `;
+        row.addEventListener('click', ()=>openRentSaleDetail({sale, share:safeDiv(sale.lucro, lucro), clientName:sale.cliente || vendedor, mode:'high'}));
+        nfEl.appendChild(row);
+      });
+    }
+  }
+
+  const el=document.getElementById("rentVendorDetail");
+  if(el) el.classList.add("open");
 }
 
 function openRentSaleDetail(payload){
@@ -3096,6 +3168,7 @@ const vendorListBase=distinct(empresaRows,"vendedor");
   // --- Clientes (mês/ano) ---
   try{
     if(!state.cliScope) state.cliScope = "ano"; // default
+    if(!state.rentScope) state.rentScope = "mes";
     const isMes = state.cliScope === "mes";
 
     // Respeita filtros (ano/time/produto/vendedor). No escopo "ano", ignora mes_num.
@@ -3113,6 +3186,15 @@ const vendorListBase=distinct(empresaRows,"vendedor");
       bAno.classList.toggle("active", !isMes);
       bMes.onclick = ()=>{ state.cliScope="mes"; render(); };
       bAno.onclick = ()=>{ state.cliScope="ano"; render(); };
+    }
+
+    const rMes=document.getElementById("rentScopeMes");
+    const rAno=document.getElementById("rentScopeAno");
+    if(rMes && rAno){
+      rMes.classList.toggle("active", state.rentScope === "mes");
+      rAno.classList.toggle("active", state.rentScope === "ano");
+      rMes.onclick = ()=>{ state.rentScope="mes"; render(); };
+      rAno.onclick = ()=>{ state.rentScope="ano"; render(); };
     }
     const hint=document.getElementById("cliListHint");
     if(hint){
@@ -3261,9 +3343,7 @@ const vendorListBase=distinct(empresaRows,"vendedor");
     setTxt("resFatAnoMeta", fatAno>0 ? fmtBRL(fatAno) : fmtBRL(0));
     setTxt("resFatAnoVal", fatAno>0 ? fmtBRL(fatAno) : fmtBRL(0));
     setTxt("resKgAnoLine", kgAno>0 ? (`Peso total: ${fmtKg(kgAno)}`) : "—");
-    const pctMetaTxt = pct==null ? "—" : fmtPct(clamp01(pct));
-    setTxt("resMetaPct", pctMetaTxt);
-    setTxt("resMetaBarLabel", pctMetaTxt);
+    setTxt("resMetaPct", pct==null ? "—" : fmtPct(clamp01(pct)));
     const mb=document.getElementById("resMetaBar");
     if(mb) mb.style.width = (pct==null? "0%": `${Math.round(clamp01(pct)*100)}%`);
 
@@ -4327,6 +4407,8 @@ document.getElementById("btnBackCliente").addEventListener("click", ()=>{ docume
 document.getElementById("btnBackCliInat").addEventListener("click", ()=>{ document.getElementById("cliInatDetail").classList.remove("open"); });
 const btnBackRentSale=document.getElementById("btnBackRentSale");
 if(btnBackRentSale){ btnBackRentSale.addEventListener("click", ()=>{ document.getElementById("rentSaleDetail").classList.remove("open"); }); }
+const btnBackRentVendor=document.getElementById("btnBackRentVendor");
+if(btnBackRentVendor){ btnBackRentVendor.addEventListener("click", ()=>{ document.getElementById("rentVendorDetail").classList.remove("open"); }); }
 
 }
 

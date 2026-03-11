@@ -237,16 +237,13 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .btnrow{display:flex;gap:10px;margin-top:14px;}
 .btn{flex:1;padding:12px 10px;border-radius:14px;border:1px solid var(--line);background:rgba(18,26,43,.9);color:var(--text);cursor:pointer;font-weight:800;}
 .btn.primary{background:rgba(46,204,113,.20);border-color:rgba(46,204,113,.35);}
-.detail{display:none;position:fixed;inset:0;background:rgba(11,18,32,.94);z-index:40;overflow:auto;padding:calc(env(safe-area-inset-top) + 24px) 14px 110px;backdrop-filter:blur(16px);}
+.detail{display:none;position:fixed;inset:0;background:rgba(11,18,32,.94);z-index:40;overflow:auto;padding:0 14px 110px;backdrop-filter:blur(16px);}
 .detail.open{display:block;}
-.detail .back{position:sticky;top:calc(env(safe-area-inset-top) + 18px);z-index:6;display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:12px 16px;margin-bottom:14px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(11,18,32,.82);cursor:pointer;font-weight:800;box-shadow:0 10px 24px rgba(0,0,0,.28);backdrop-filter:blur(12px);}
-.detail .head{margin-top:12px;padding:14px 14px;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);box-shadow:0 14px 40px rgba(0,0,0,.35);backdrop-filter:blur(12px);}
+.detail-nav{position:sticky;top:0;z-index:4;display:flex;align-items:center;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;margin:0 -14px 8px;background:linear-gradient(180deg, rgba(11,18,32,.98) 0%, rgba(11,18,32,.92) 72%, rgba(11,18,32,0) 100%);backdrop-filter:blur(10px);}
+.detail .back{position:static;display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 16px;border-radius:18px;border:1px solid rgba(255,255,255,.10);background:rgba(18,26,43,.82);cursor:pointer;font-weight:800;box-shadow:0 10px 24px rgba(0,0,0,.20);backdrop-filter:blur(10px);}
+.detail .head{margin-top:0;padding:14px 14px;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);box-shadow:0 14px 40px rgba(0,0,0,.35);backdrop-filter:blur(12px);}
 .detail .head .nm{font-size:20px;font-weight:950;}
 .detail .head .per{color:var(--muted);font-size:12px;margin-top:4px;}
-@media (max-width: 520px){
-  .detail{padding:calc(env(safe-area-inset-top) + 28px) 16px 116px;}
-  .detail .back{top:calc(env(safe-area-inset-top) + 20px);min-height:48px;padding:12px 16px;}
-}
 .cards2{display:flex;gap:10px;overflow-x:auto;padding:8px 2px 12px;}
 .cards2 .kpi{min-width:280px;max-width:280px;}
 @media (max-width: 520px){
@@ -1516,7 +1513,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   </div>
 
 <div class="detail" id="detail">
-  <div class="back" id="btnBack">← Voltar</div>
+  <div class="detail-nav"><div class="back" id="btnBack">← Voltar</div></div>
   <div class="errbox" id="dError" style="display:none"></div>
   <div class="head">
     <div class="seller-head">
@@ -1557,7 +1554,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
 
 <div class="detail" id="pdetail">
-  <div class="back" id="btnBackProduto">← Voltar</div>
+  <div class="detail-nav"><div class="back" id="btnBackProduto">← Voltar</div></div>
   <div class="errbox" id="pError" style="display:none"></div>
   <div class="head">
     <div class="nm" id="pNome">—</div>
@@ -1586,7 +1583,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 </div>
 
 <div class="detail" id="lucroDetail">
-  <div class="back" id="btnBackLucro">← Voltar</div>
+  <div class="detail-nav"><div class="back" id="btnBackLucro">← Voltar</div></div>
   <div class="head">
     <div class="nm">Margem/kg por produto</div>
     <div class="per" id="lucroPeriodo">—</div>
@@ -1893,7 +1890,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 
   
 <div class="detail" id="resAnoDetail">
-  <div class="back" id="btnBackResAno">← Voltar</div>
+  <div class="detail-nav"><div class="back" id="btnBackResAno">← Voltar</div></div>
   <div class="head" style="padding-bottom:0;">
     <div class="nm">Resultados</div>
     <div class="per" id="resAnoPeriodo">—</div>
@@ -1906,7 +1903,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 </div>
 
 <div class="detail" id="resCustoDetail">
-  <div class="back" id="btnBackResCusto">← Voltar</div>
+  <div class="detail-nav"><div class="back" id="btnBackResCusto">← Voltar</div></div>
   <div class="head" style="padding-bottom:0;">
     <div class="nm">Custo operacional</div>
     <div class="per" id="resCustoPeriodo">—</div>
@@ -1919,7 +1916,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 </div>
 
 <div class="detail" id="cliInatDetail">
-  <div class="back" id="btnBackCliInat">← Voltar</div>
+  <div class="detail-nav"><div class="back" id="btnBackCliInat">← Voltar</div></div>
   <div class="head" style="padding-bottom:0;">
     <div class="nm">Clientes inativos</div>
     <div class="per" id="cliInatPeriodo">—</div>
@@ -1937,7 +1934,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 </div>
 
 <div class="detail" id="cdetail">
-    <div class="back" id="btnBackCliente">← Voltar</div>
+    <div class="detail-nav"><div class="back" id="btnBackCliente">← Voltar</div></div>
     <div class="errbox" id="cError" style="display:none"></div>
     <div class="head">
       <div class="nm" id="cNome">—</div>
@@ -1961,7 +1958,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   </div>
 
 <div class="detail" id="rentSaleDetail">
-  <div class="back" id="btnBackRentSale">← Voltar</div>
+  <div class="detail-nav"><div class="back" id="btnBackRentSale">← Voltar</div></div>
   <div class="errbox" id="rentSaleError" style="display:none"></div>
   <div class="head">
     <div class="nm" id="rentSaleCliente">—</div>

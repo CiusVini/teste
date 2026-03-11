@@ -237,12 +237,16 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .btnrow{display:flex;gap:10px;margin-top:14px;}
 .btn{flex:1;padding:12px 10px;border-radius:14px;border:1px solid var(--line);background:rgba(18,26,43,.9);color:var(--text);cursor:pointer;font-weight:800;}
 .btn.primary{background:rgba(46,204,113,.20);border-color:rgba(46,204,113,.35);}
-.detail{display:none;position:fixed;inset:0;background:rgba(11,18,32,.94);z-index:40;overflow:auto;padding:14px 14px 110px;backdrop-filter:blur(16px);}
+.detail{display:none;position:fixed;inset:0;background:rgba(11,18,32,.94);z-index:40;overflow:auto;padding:calc(env(safe-area-inset-top) + 24px) 14px 110px;backdrop-filter:blur(16px);}
 .detail.open{display:block;}
-.detail .back{position:sticky;top:12px;z-index:2;display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);cursor:pointer;font-weight:800;backdrop-filter:blur(10px);}
+.detail .back{position:sticky;top:calc(env(safe-area-inset-top) + 18px);z-index:6;display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:12px 16px;margin-bottom:14px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(11,18,32,.82);cursor:pointer;font-weight:800;box-shadow:0 10px 24px rgba(0,0,0,.28);backdrop-filter:blur(12px);}
 .detail .head{margin-top:12px;padding:14px 14px;border-radius:22px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);box-shadow:0 14px 40px rgba(0,0,0,.35);backdrop-filter:blur(12px);}
 .detail .head .nm{font-size:20px;font-weight:950;}
 .detail .head .per{color:var(--muted);font-size:12px;margin-top:4px;}
+@media (max-width: 520px){
+  .detail{padding:calc(env(safe-area-inset-top) + 28px) 16px 116px;}
+  .detail .back{top:calc(env(safe-area-inset-top) + 20px);min-height:48px;padding:12px 16px;}
+}
 .cards2{display:flex;gap:10px;overflow-x:auto;padding:8px 2px 12px;}
 .cards2 .kpi{min-width:280px;max-width:280px;}
 @media (max-width: 520px){
@@ -1109,6 +1113,87 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
 .res-rent-scope{display:flex;justify-content:flex-end;gap:8px;margin:8px 0 14px;}
 .rent-card,.rent-row,.rent-row .left,.rent-row .right{min-width:0;}
 
+.res-ano-card{
+  padding:18px 18px 18px;
+}
+.res-ano-card .k{
+  margin-bottom:12px;
+}
+.res-ano-card .v{
+  line-height:1.03;
+  margin-bottom:16px;
+}
+.res-ano-card .res-meta-bar-wrap{
+  margin-top:10px;
+}
+.res-ano-card .hbar{
+  height:18px;
+  border-radius:999px;
+}
+.res-ano-card .pct-tip{
+  top:50%;
+  right:auto;
+  left:50%;
+  transform:translate(-50%,-50%);
+  font-size:12px;
+  color:rgba(232,238,252,.88);
+  text-shadow:0 2px 10px rgba(0,0,0,.4);
+}
+.res-ano-card .pct-tip::after{
+  display:none;
+}
+.res-ano-card .res-proj-row{
+  margin-top:16px;
+}
+.res-fat-card{
+  position:relative;
+  padding:18px 18px 18px;
+}
+.res-fat-card .k{
+  margin-bottom:12px;
+}
+.res-fat-card .v{
+  line-height:1.03;
+  margin-bottom:16px;
+}
+.res-fat-card .s{
+  margin-top:0 !important;
+  padding-right:56px;
+}
+.res-fat-card .click-indicator{
+  position:absolute;
+  right:18px;
+  bottom:18px;
+  width:38px;
+  height:38px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(46,204,113,.18);
+  background:rgba(46,204,113,.08);
+  color:rgba(46,204,113,.95);
+  font-size:18px;
+  font-weight:900;
+  box-shadow:0 0 0 1px rgba(46,204,113,.10) inset, 0 8px 22px rgba(46,204,113,.12);
+}
+.res-fat-card:hover .click-indicator{
+  box-shadow:0 0 0 1px rgba(46,204,113,.14) inset, 0 10px 26px rgba(46,204,113,.16);
+}
+@media (max-width:520px){
+  .res-ano-card{
+    padding:18px 16px 18px;
+  }
+  .res-fat-card{
+    padding:18px 16px 18px;
+  }
+}
+
+/* animação suave */
+#resMetaBar{
+  transition:width .7s ease;
+}
+
 </style>
 </head>
 <body>
@@ -1651,31 +1736,26 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
     <div class="res-subview active" id="resSubviewResultados">
     <div class="home-cards">
       <!-- Meta anual (igual Home) -->
-      <div class="home-card resCard" id="cardMetaAnual">
+      <div class="home-card resCard res-ano-card" id="cardMetaAnual">
         <div>
           <div class="k">Meta (Ano)</div>
           <div class="v" id="resMetaAnualVal">R$ 50.000.000,00</div>
-          <div class="sub">
-            <span>Faturamento acumulado</span>
-            <span style="float:right;font-weight:700;" id="resFatAnoMeta">—</span>
-          </div>
           <div class="res-meta-bar-wrap">
             <div class="hbar"><div id="resMetaBar"></div></div>
             <div class="pct-tip" id="resMetaPct">—</div>
           </div>
           <div class="res-proj-row" id="resProjLine"><div class="proj-left"><span class="label">Projeção no ritmo atual:</span><span class="value" id="resProjVal">—</span></div><span class="proj-pct" id="resProjPct">—</span></div>
-          <div class="res-gap-row" id="resGapLine"><span class="label">Diferença para meta:</span><span class="value" id="resProjGap">—</span></div>
         </div>
       </div>
 
       <!-- Faturamento acumulado (Ano) (clicável) -->
-      <div class="home-card resCard" id="cardFatAno" style="cursor:pointer;">
+      <div class="home-card resCard res-fat-card" id="cardFatAno" style="cursor:pointer;">
         <div class="k">Faturamento acumulado (Ano)</div>
         <div class="v" id="resFatAnoVal">—</div>
-        <div class="s" style="margin-top:6px;font-weight:600;">
+        <div class="s" style="font-weight:600;">
           <span id="resKgAnoLine">—</span>
         </div>
-        <div class="sub" style="margin-top:8px;">Clique para ver por mês.</div>
+        <div class="click-indicator" aria-hidden="true">›</div>
       </div>
 
       <!-- Ano (Resumo) -->

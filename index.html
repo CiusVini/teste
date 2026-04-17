@@ -318,6 +318,56 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
   .lme-week-line{grid-template-columns:70px 1fr 1fr;gap:8px;}
 }
 
+
+.lme-week-premium{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:var(--shadow);}
+.lme-week-premium-top{display:grid;grid-template-columns:1.25fr .95fr;gap:12px;align-items:stretch;}
+.lme-week-kpi{border:1px solid rgba(46,204,113,.18);border-radius:20px;padding:16px;background:linear-gradient(180deg, rgba(46,204,113,.10), rgba(46,204,113,.04));display:flex;flex-direction:column;justify-content:space-between;min-height:160px;}
+.lme-week-kpi.neg{border-color:rgba(231,76,60,.20);background:linear-gradient(180deg, rgba(231,76,60,.10), rgba(231,76,60,.04));}
+.lme-week-kpi-label{font-size:12px;font-weight:900;letter-spacing:.3px;color:var(--muted);text-transform:uppercase;}
+.lme-week-kpi-value{font-size:38px;font-weight:950;line-height:1;margin-top:10px;color:var(--green);}
+.lme-week-kpi.neg .lme-week-kpi-value{color:#ff8f86;}
+.lme-week-kpi-sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.lme-week-kpi-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);}
+.lme-week-kpi-pill.pos{color:var(--green);border-color:rgba(46,204,113,.22);background:rgba(46,204,113,.10);}
+.lme-week-kpi-pill.neg{color:#ff8f86;border-color:rgba(231,76,60,.22);background:rgba(231,76,60,.10);}
+.lme-week-kpi-pill.neu{color:#ffd866;border-color:rgba(241,196,15,.22);background:rgba(241,196,15,.10);}
+.lme-week-kpi-note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.35;}
+.lme-week-side{display:grid;grid-template-columns:1fr;gap:10px;}
+.lme-week-compact{border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:12px 14px;background:rgba(255,255,255,.03);}
+.lme-week-compact-title{font-size:11px;font-weight:900;letter-spacing:.3px;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.lme-week-compact-line{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:7px 0;font-size:14px;}
+.lme-week-compact-line strong{font-size:15px;color:var(--text);}
+.lme-week-compact-line .emph{font-weight:950;color:#ffd866;}
+.lme-week-compact-line .good{font-weight:950;color:var(--green);}
+.lme-week-compact-line .bad{font-weight:950;color:#ff8f86;}
+.lme-week-compact-line+.lme-week-compact-line{border-top:1px solid rgba(255,255,255,.06);}
+.lme-week-actions{display:flex;justify-content:flex-end;margin-top:12px;}
+.lme-week-detail-btn{border:1px solid rgba(54,194,255,.20);background:rgba(54,194,255,.10);color:var(--cyan);padding:11px 14px;border-radius:14px;font-size:12px;font-weight:900;cursor:pointer;box-shadow:var(--shadow);}
+.lme-week-detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;}
+.lme-week-detail-box{border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:12px 14px;background:rgba(255,255,255,.03);}
+.lme-week-detail-box .k{font-size:11px;color:var(--muted);text-transform:uppercase;}
+.lme-week-detail-box .v2{font-size:18px;font-weight:950;margin-top:6px;}
+.lme-week-detail-box .v2.green{color:var(--green);}
+.lme-week-detail-box .v2.red{color:#ff8f86;}
+.lme-week-tax-list{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+.lme-week-tax-row{display:grid;grid-template-columns:78px 1fr auto auto;gap:10px;align-items:center;padding:12px 14px;border:1px solid rgba(255,255,255,.06);border-radius:16px;background:rgba(255,255,255,.03);}
+.lme-week-tax-row .rate{font-size:12px;font-weight:900;color:var(--text);}
+.lme-week-tax-row .label{font-size:13px;font-weight:850;color:var(--text);}
+.lme-week-tax-row .cost{font-size:13px;font-weight:900;color:var(--muted);}
+.lme-week-tax-row .sale{font-size:14px;font-weight:950;color:var(--text);}
+.lme-week-diff{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:14px;background:rgba(255,255,255,.03);margin-top:12px;}
+.lme-week-diff .label{font-size:13px;font-weight:900;color:var(--text);}
+.lme-week-diff .value{font-size:22px;font-weight:950;color:#ff8f86;}
+@media (max-width:760px){
+  .lme-week-premium-top{grid-template-columns:1fr;}
+  .lme-week-kpi{min-height:auto;}
+  .lme-week-detail-grid{grid-template-columns:1fr;}
+  .lme-week-tax-row{grid-template-columns:64px 1fr;gap:6px;}
+  .lme-week-tax-row .sale,.lme-week-tax-row .cost{grid-column:2;}
+  .lme-week-actions{justify-content:stretch;}
+  .lme-week-detail-btn{width:100%;}
+}
+
 .app-shell{display:none;}
 .app-shell.authenticated{display:block;}
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 20px;background:radial-gradient(circle at center, rgba(54,194,255,.10), transparent 24%), linear-gradient(180deg,#061432 0%, #02122e 100%);}
@@ -733,6 +783,20 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
       </div>
       <div id="calcSemanaCard"></div>
     </div>
+  </div>
+
+</div>
+
+<div class="overlay" id="weekCalcDetailOverlay">
+  <div class="overlay-header">
+    <div class="back" data-close="weekCalcDetailOverlay">← Voltar</div>
+    <div class="head">
+      <div class="nm">Preço da Semana</div>
+      <div class="per">Detalhamento completo do simulador</div>
+    </div>
+  </div>
+  <div class="section">
+    <div id="calcSemanaDetailBody"></div>
   </div>
 </div>
 
@@ -1613,92 +1677,109 @@ function supplierCalcHtml(data) {
     </div>
   `;
 }
+
 function semanaCalcHtml(data) {
-  const grossClass = data.margemBruta >= 0 ? '' : 'red';
-  const liquidClass = data.margemLiquida >= 0 ? 'green' : 'red';
+  const kpiClass = data.margemLiquida < 0 ? 'neg' : '';
+  const margemBrutaClass = data.margemBruta < 0 ? 'bad' : 'good';
+  const kpiPctClass = data.margemLiquidaPct < 0 ? 'neg' : (data.margemLiquidaPct > 0 ? 'pos' : 'neu');
+  const tribClass = data.resultadoTributario < 0 ? 'bad' : 'good';
   return `
-    <div class="lme-week-grid">
-      <div class="lme-week-panel">
-        <div class="lme-week-panel-head">
-          <div class="cost">Preço de custo</div>
-          <div class="sale">Preço de venda</div>
+    <div class="lme-week-premium">
+      <div class="lme-week-premium-top">
+        <div class="lme-week-kpi ${kpiClass}">
+          <div>
+            <div class="lme-week-kpi-label">Margem líquida por kg</div>
+            <div class="lme-week-kpi-value">R$ ${numBR(data.margemLiquida, 2)}</div>
+            <div class="lme-week-kpi-sub">
+              <span class="lme-week-kpi-pill ${kpiPctClass}">${numBR(data.margemLiquidaPct, 2)}%</span>
+              <span class="lme-week-kpi-pill ${data.margemBruta >= 0 ? 'pos' : 'neg'}">Margem bruta R$ ${numBR(data.margemBruta, 2)}</span>
+            </div>
+          </div>
+          <div class="lme-week-kpi-note">Visão principal do simulador. O detalhamento fiscal completo fica no botão abaixo.</div>
         </div>
-        <div class="lme-week-panel-body">
-          <div class="lme-week-summary">
-            <div class="lme-week-mini">
-              <div class="k">Vergalhão</div>
-              <div class="v2">R$ ${numBR(data.vergalhao, 2)}</div>
-            </div>
-            <div class="lme-week-mini">
-              <div class="k">Mão de obra</div>
-              <div class="v2">R$ ${numBR(data.maoObra, 2)}</div>
-            </div>
-            <div class="lme-week-mini">
-              <div class="k">Preço custo</div>
-              <div class="v2">R$ ${numBR(data.custo, 2)}</div>
-            </div>
-            <div class="lme-week-mini">
-              <div class="k">Preço venda</div>
-              <div class="v2">R$ ${numBR(data.venda, 2)}</div>
-            </div>
+
+        <div class="lme-week-side">
+          <div class="lme-week-compact">
+            <div class="lme-week-compact-title">Resumo rápido</div>
+            <div class="lme-week-compact-line"><span>Custo</span><strong>R$ ${numBR(data.custo, 2)}</strong></div>
+            <div class="lme-week-compact-line"><span>Venda</span><strong>R$ ${numBR(data.venda, 2)}</strong></div>
+            <div class="lme-week-compact-line"><span>Margem bruta</span><span class="${margemBrutaClass}">R$ ${numBR(data.margemBruta, 2)} · ${numBR(data.margemBrutaPct, 2)}%</span></div>
           </div>
 
-          <div class="lme-week-highlight">
-            <div class="lme-week-highlight-box">
-              <div class="k">Margem bruta</div>
-              <div class="v2 ${grossClass}">R$ ${numBR(data.margemBruta, 2)}</div>
-            </div>
-            <div class="lme-week-highlight-box">
-              <div class="k">Margem bruta %</div>
-              <div class="v2 yellow">${numBR(data.margemBrutaPct, 2)}%</div>
-            </div>
-            <div class="lme-week-highlight-box">
-              <div class="k">Margem líquida %</div>
-              <div class="v2 ${liquidClass}">${numBR(data.margemLiquidaPct, 2)}%</div>
-            </div>
+          <div class="lme-week-compact">
+            <div class="lme-week-compact-title">Base e tributos</div>
+            <div class="lme-week-compact-line"><span>Vergalhão</span><strong>R$ ${numBR(data.vergalhao, 2)}</strong></div>
+            <div class="lme-week-compact-line"><span>Mão de obra</span><strong>R$ ${numBR(data.maoObra, 2)}</strong></div>
+            <div class="lme-week-compact-line"><span>Total tributos</span><span class="${tribClass}">R$ ${numBR(data.resultadoTributario, 2)}</span></div>
           </div>
-
-          <div class="lme-week-lines">
-            <div class="lme-week-line">
-              <div class="rate">${numBR(data.icmsPct, 2)}%</div>
-              <div class="cost-val">ICMS · R$ ${numBR(data.custoIcms, 2)}</div>
-              <div class="sale-val">R$ ${numBR(data.vendaIcms, 2)}</div>
-            </div>
-            <div class="lme-week-line">
-              <div class="rate">${numBR(data.pisPct, 2)}%</div>
-              <div class="cost-val">PIS · R$ ${numBR(data.custoPis, 2)}</div>
-              <div class="sale-val">R$ ${numBR(data.vendaPis, 2)}</div>
-            </div>
-            <div class="lme-week-line">
-              <div class="rate">${numBR(data.cofinsPct, 2)}%</div>
-              <div class="cost-val">COFINS · R$ ${numBR(data.custoCofins, 2)}</div>
-              <div class="sale-val">R$ ${numBR(data.vendaCofins, 2)}</div>
-            </div>
-          </div>
-
-          <div class="lme-week-total">
-            <div class="label">Diferença de tributos</div>
-            <div class="eq">=</div>
-            <div class="val">R$ ${numBR(data.resultadoTributario, 2)}</div>
-          </div>
-
-          <div class="lme-week-liquid">
-            <div class="lme-week-liquid-box">
-              <div class="k">Preço custo líquido</div>
-              <div class="v2">R$ ${numBR(data.custoLiquido, 2)}</div>
-            </div>
-            <div class="lme-week-liquid-box">
-              <div class="k">Preço venda líquido</div>
-              <div class="v2">R$ ${numBR(data.vendaLiquida, 2)}</div>
-            </div>
-            <div class="lme-week-liquid-box">
-              <div class="k">Margem líquida por kg</div>
-              <div class="v2 ${liquidClass}">R$ ${numBR(data.margemLiquida, 2)}</div>
-            </div>
-          </div>
-
-          <div class="lme-week-note">Os três campos editáveis são preço do vergalhão, mão de obra e preço de venda. O restante é recalculado automaticamente com ICMS, PIS e COFINS para exibir a margem líquida por kg.</div>
         </div>
+      </div>
+
+      <div class="lme-week-actions">
+        <button type="button" class="lme-week-detail-btn" onclick="openWeekCalcDetail()">Ver detalhamento completo</button>
+      </div>
+    </div>
+  `;
+}
+function semanaCalcDetailHtml(data) {
+  const liquidClass = data.margemLiquida >= 0 ? 'green' : 'red';
+  const grossClass = data.margemBruta >= 0 ? 'green' : 'red';
+  return `
+    <div class="lme-week-premium">
+      <div class="lme-week-detail-grid">
+        <div class="lme-week-detail-box">
+          <div class="k">Preço custo</div>
+          <div class="v2">R$ ${numBR(data.custo, 2)}</div>
+        </div>
+        <div class="lme-week-detail-box">
+          <div class="k">Preço venda</div>
+          <div class="v2">R$ ${numBR(data.venda, 2)}</div>
+        </div>
+        <div class="lme-week-detail-box">
+          <div class="k">Margem bruta</div>
+          <div class="v2 ${grossClass}">R$ ${numBR(data.margemBruta, 2)} · ${numBR(data.margemBrutaPct, 2)}%</div>
+        </div>
+      </div>
+
+      <div class="lme-week-detail-grid">
+        <div class="lme-week-detail-box">
+          <div class="k">Preço custo líquido</div>
+          <div class="v2">R$ ${numBR(data.custoLiquido, 2)}</div>
+        </div>
+        <div class="lme-week-detail-box">
+          <div class="k">Preço venda líquido</div>
+          <div class="v2">R$ ${numBR(data.vendaLiquida, 2)}</div>
+        </div>
+        <div class="lme-week-detail-box">
+          <div class="k">Margem líquida por kg</div>
+          <div class="v2 ${liquidClass}">R$ ${numBR(data.margemLiquida, 2)} · ${numBR(data.margemLiquidaPct, 2)}%</div>
+        </div>
+      </div>
+
+      <div class="lme-week-tax-list">
+        <div class="lme-week-tax-row">
+          <div class="rate">${numBR(data.icmsPct, 2)}%</div>
+          <div class="label">ICMS</div>
+          <div class="cost">Custo · R$ ${numBR(data.custoIcms, 2)}</div>
+          <div class="sale">Venda · R$ ${numBR(data.vendaIcms, 2)}</div>
+        </div>
+        <div class="lme-week-tax-row">
+          <div class="rate">${numBR(data.pisPct, 2)}%</div>
+          <div class="label">PIS</div>
+          <div class="cost">Custo · R$ ${numBR(data.custoPis, 2)}</div>
+          <div class="sale">Venda · R$ ${numBR(data.vendaPis, 2)}</div>
+        </div>
+        <div class="lme-week-tax-row">
+          <div class="rate">${numBR(data.cofinsPct, 2)}%</div>
+          <div class="label">COFINS</div>
+          <div class="cost">Custo · R$ ${numBR(data.custoCofins, 2)}</div>
+          <div class="sale">Venda · R$ ${numBR(data.vendaCofins, 2)}</div>
+        </div>
+      </div>
+
+      <div class="lme-week-diff">
+        <div class="label">Diferença de tributos</div>
+        <div class="value">R$ ${numBR(data.resultadoTributario, 2)}</div>
       </div>
     </div>
   `;
@@ -1746,6 +1827,8 @@ function renderLMECalc() {
   document.getElementById('calcJfCard').innerHTML = supplierCalcHtml(jf);
   document.getElementById('calcInfinitCard').innerHTML = supplierCalcHtml(infinit);
   document.getElementById('calcSemanaCard').innerHTML = semanaCalcHtml(calc.semana);
+  const detailBody = document.getElementById('calcSemanaDetailBody');
+  if (detailBody) detailBody.innerHTML = semanaCalcDetailHtml(calc.semana);
 }
 function syncLMECalcFromInputs() {
   state.lmeCalc.basePrice = Number(document.getElementById('calcBasePrice').value) || 0;
@@ -1762,6 +1845,10 @@ function syncLMECalcFromInputs() {
 function openLMECalc() {
   renderLMECalc();
   openOverlay('lmeCalcOverlay');
+}
+function openWeekCalcDetail() {
+  renderLMECalc();
+  openOverlay('weekCalcDetailOverlay');
 }
 
 

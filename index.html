@@ -716,25 +716,10 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
   <div class="section lme-calc-grid">
     <div class="lme-calc-form">
       <div class="h2">
-        <div class="left">Parâmetros de cálculo</div>
+        <div class="left">Base de cálculo</div>
         <div class="right" id="lmeCalcBaseDate">—</div>
       </div>
-      <div class="lme-calc-fields">
-        <div class="lme-field">
-          <label for="calcBasePrice">LME próxima semana (R$)</label>
-          <input id="calcBasePrice" type="number" step="0.0001"/>
-        </div>
-        <div class="lme-field">
-          <label for="calcTaxCoef">Coeficiente imposto</label>
-          <input id="calcTaxCoef" type="number" step="0.0001"/>
-        </div>
-        <div class="lme-field">
-          <label for="calcFinancePct">Financeiro 21/28/35 (%)</label>
-          <input id="calcFinancePct" type="number" step="0.01"/>
-        </div>
-
-      </div>
-      <div class="lme-calc-note">Os parâmetros gerais ficam neste bloco. Os parâmetros de cada fornecedor aparecem dentro do card correspondente para consulta e ajuste quando necessário.</div>
+      <div class="lme-calc-note">Parâmetros fixados no código para manter a calculadora limpa: LME da próxima semana, coeficiente de imposto, financeiro 21/28/35, JF com prêmio de 93,55% e frete R$ 0,30, e Infinit com prêmio de 93,00% sem frete. Quando houver mudança, ela entra na atualização diária.</div>
     </div>
 
     <div class="lme-supplier-grid">
@@ -840,8 +825,8 @@ let state = {
     taxCoef: 0.7986,
     financePct: 1.70,
     freteJF: 0.30,
-    premioJF: 93.0,
-    premioInfinit: 94.0,
+    premioJF: 93.55,
+    premioInfinit: 93.0,
     semanaVergalhao: 0,
     semanaMaoObra: 2.00,
     semanaVenda: 0,
@@ -1501,27 +1486,27 @@ function renderLME() {
   renderLMEHistory(rows, latest, currentWeekId, currentWeekRows);
   renderLMEHistoricalOverlay(rows);
 
-  const latestPriceRow = rows.slice().reverse().find(r => toValidNumber(r.preco) !== null) || latest;
+  const latestPriceRow = rows.slice().reverse().find(r => toValidNumber(r.lme) !== null) || latest;
   const latestPriceIndex = rows.findIndex(r => r.data === latestPriceRow.data);
-  const previousPriceRow = rows.slice(0, latestPriceIndex).reverse().find(r => toValidNumber(r.preco) !== null) || latestPriceRow;
-  const dailyMeta = variationMeta(`Em ${formatDateBR(latestPriceRow.data)}`, toValidNumber(latestPriceRow.preco), `Em ${formatDateBR(previousPriceRow.data)}`, toValidNumber(previousPriceRow.preco), 2);
+  const previousPriceRow = rows.slice(0, latestPriceIndex).reverse().find(r => toValidNumber(r.lme) !== null) || latestPriceRow;
+  const dailyMeta = variationMeta(`Em ${formatDateBR(latestPriceRow.data)}`, toValidNumber(latestPriceRow.lme), `Em ${formatDateBR(previousPriceRow.data)}`, toValidNumber(previousPriceRow.lme), 2);
 
   const weekParts = currentWeekId.split('-');
-  const weeklyMeta = variationMeta(`Semana ${weekParts[1]}/${weekParts[0]}`, currentWeekAvgBRL, `Semana anterior`, previousWeekAvgBRL, 2);
+  const weeklyMeta = variationMeta(`Semana ${weekParts[1]}/${weekParts[0]}`, currentWeekAvgLME, `Semana anterior`, previousWeekAvgLME, 2);
 
   const currentMonthDate = latest.data.split('-');
   const prevMonthDate = prevMonthId.split('-');
-  const monthlyMeta = variationMeta(`Em ${String(currentMonthDate[1]).padStart(2,'0')}/${currentMonthDate[0]}`, avgValid(currentMonthRows, x => x.preco), `Em ${String(prevMonthDate[1]).padStart(2,'0')}/${prevMonthDate[0]}`, avgValid(previousMonthRows, x => x.preco), 2);
+  const monthlyMeta = variationMeta(`Em ${String(currentMonthDate[1]).padStart(2,'0')}/${currentMonthDate[0]}`, avgValid(currentMonthRows, x => x.lme), `Em ${String(prevMonthDate[1]).padStart(2,'0')}/${prevMonthDate[0]}`, avgValid(previousMonthRows, x => x.lme), 2);
 
   const currentYear = latest.data.slice(0,4);
   const previousYear = String(Number(currentYear) - 1);
-  const yearlyMeta = variationMeta(`Em ${currentYear}`, avgValid(currentYearRows, x => x.preco), `Em ${previousYear}`, avgValid(previousYearRows, x => x.preco), 2);
+  const yearlyMeta = variationMeta(`Em ${currentYear}`, avgValid(currentYearRows, x => x.lme), `Em ${previousYear}`, avgValid(previousYearRows, x => x.lme), 2);
 
   document.getElementById('lmeVariationGrid').innerHTML = [
-    lmeVariationCard('Variação Diária do Preço', dailyMeta),
-    lmeVariationCard('Variação Semanal do Preço', weeklyMeta),
-    lmeVariationCard('Variação Mensal do Preço', monthlyMeta),
-    lmeVariationCard('Variação Anual do Preço', yearlyMeta)
+    lmeVariationCard('Variação Diária do Cobre', dailyMeta),
+    lmeVariationCard('Variação Semanal do Cobre', weeklyMeta),
+    lmeVariationCard('Variação Mensal do Cobre', monthlyMeta),
+    lmeVariationCard('Variação Anual do Cobre', yearlyMeta)
   ].join('');
 }
 
@@ -1685,29 +1670,6 @@ function calcVergalhaoValues() {
 }
 function supplierCalcHtml(data, title, type) {
   const hasFrete = Number(data.freteValue || 0) > 0;
-  const premioId = type === 'infinit' ? 'calcPremioInfinitInline' : 'calcPremioJFInline';
-  const freteId = 'calcFreteJFInline';
-  const parameterFields = type === 'infinit'
-    ? `
-      <div class="lme-week-compact">
-        <div class="lme-week-compact-title">Parâmetros do fornecedor</div>
-        <div class="lme-field">
-          <label for="${premioId}">Prêmio ${title} (%)</label>
-          <input id="${premioId}" type="number" step="0.01" value="${numBR(data.premioPct, 2).replace('.', '').replace(',', '.')}" oninput="syncLMECalcFromInputs()"/>
-        </div>
-      </div>`
-    : `
-      <div class="lme-week-compact">
-        <div class="lme-week-compact-title">Parâmetros do fornecedor</div>
-        <div class="lme-field">
-          <label for="${premioId}">Prêmio ${title} (%)</label>
-          <input id="${premioId}" type="number" step="0.01" value="${numBR(data.premioPct, 2).replace('.', '').replace(',', '.')}" oninput="syncLMECalcFromInputs()"/>
-        </div>
-        <div class="lme-field" style="margin-top:10px;">
-          <label for="${freteId}">Frete JF (R$)</label>
-          <input id="${freteId}" type="number" step="0.01" value="${numBR(data.freteValue, 2).replace('.', '').replace(',', '.')}" oninput="syncLMECalcFromInputs()"/>
-        </div>
-      </div>`;
   return `
     <div class="lme-week-premium">
       <div class="lme-week-premium-top">
@@ -1720,7 +1682,7 @@ function supplierCalcHtml(data, title, type) {
               <span class="lme-week-kpi-pill neu">Prêmio ${numBR(data.premioPct, 2)}%</span>
             </div>
           </div>
-          <div class="lme-week-kpi-note">Visão resumida da calculadora. Os parâmetros deste fornecedor ficam neste card e o detalhamento completo segue no botão abaixo.</div>
+          <div class="lme-week-kpi-note">Visão resumida da calculadora com parâmetros fixados no código e resultado já consolidado.</div>
         </div>
 
         <div class="lme-week-side">
@@ -1738,8 +1700,7 @@ function supplierCalcHtml(data, title, type) {
             <div class="lme-week-compact-line"><span>Coeficiente</span><span class="emph">${numBR(data.taxCoef, 4)}</span></div>
           </div>
 
-          ${parameterFields}
-        </div>
+                  </div>
       </div>
 
       <div class="lme-week-actions">
@@ -1912,9 +1873,6 @@ function semanaCalcDetailHtml(data) {
 }
 function renderLMECalc() {
   const cfg = state.lmeCalc;
-  document.getElementById('calcBasePrice').value = Number(cfg.basePrice || 0).toFixed(4);
-  document.getElementById('calcTaxCoef').value = Number(cfg.taxCoef || 0).toFixed(4);
-  document.getElementById('calcFinancePct').value = Number(cfg.financePct || 0).toFixed(2);
   document.getElementById('lmeCalcBaseDate').textContent = cfg.baseDate ? `Base ${cfg.baseDate}` : 'Base indisponível';
 
   let calc = calcVergalhaoValues();
@@ -1961,15 +1919,6 @@ function renderLMECalc() {
   }
 }
 function syncLMECalcFromInputs() {
-  state.lmeCalc.basePrice = Number(document.getElementById('calcBasePrice').value) || 0;
-  state.lmeCalc.taxCoef = Number(document.getElementById('calcTaxCoef').value) || 0;
-  state.lmeCalc.financePct = Number(document.getElementById('calcFinancePct').value) || 0;
-  const freteInline = document.getElementById('calcFreteJFInline');
-  const premioJfInline = document.getElementById('calcPremioJFInline');
-  const premioInfinitInline = document.getElementById('calcPremioInfinitInline');
-  state.lmeCalc.freteJF = Number(freteInline ? freteInline.value : 0) || 0;
-  state.lmeCalc.premioJF = Number(premioJfInline ? premioJfInline.value : 0) || 0;
-  state.lmeCalc.premioInfinit = Number(premioInfinitInline ? premioInfinitInline.value : 0) || 0;
   state.lmeCalc.semanaVergalhao = Number(document.getElementById('calcSemanaVergalhao').value) || 0;
   state.lmeCalc.semanaMaoObra = Number(document.getElementById('calcSemanaMaoObra').value) || 0;
   state.lmeCalc.semanaVenda = Number(document.getElementById('calcSemanaVenda').value) || 0;
@@ -2086,8 +2035,9 @@ document.getElementById('loginPass').addEventListener('input', () => document.ge
 document.querySelectorAll('.js-logout').forEach(el => el.addEventListener('click', logout));
 document.getElementById('lmeHistoricalBtn').addEventListener('click', openLMEHistorical);
 document.getElementById('openLmeCalcBtn').addEventListener('click', openLMECalc);
-['calcBasePrice','calcTaxCoef','calcFinancePct','calcSemanaVergalhao','calcSemanaMaoObra','calcSemanaVenda'].forEach(id => {
-  document.getElementById(id).addEventListener('input', syncLMECalcFromInputs);
+['calcSemanaVergalhao','calcSemanaMaoObra','calcSemanaVenda'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', syncLMECalcFromInputs);
 });
 document.querySelectorAll('[data-lme-year]').forEach(el => el.addEventListener('click', () => { state.lmeHistoryYear = el.dataset.lmeYear; renderLMEHistoricalOverlay(LME_COBRE.slice().sort((a,b) => a.data.localeCompare(b.data))); }));
 async function enforceFreshVersion() {

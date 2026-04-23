@@ -665,7 +665,7 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
     <div class="section">
       <div class="h2">
         <div class="left">Saldo por imposto</div>
-        <div class="right">Linha SALDO</div>
+        <div class="right"></div>
       </div>
       <div class="tax-grid-3">
         <div class="mini">
@@ -816,14 +816,6 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
     </div>
   </div>
   <div class="section lme-calc-grid">
-    <div class="lme-calc-form">
-      <div class="h2">
-        <div class="left">Base de cálculo</div>
-        <div class="right" id="lmeCalcBaseDate">—</div>
-      </div>
-      <div class="lme-calc-note">Parâmetros fixados no código para manter a calculadora limpa: LME da próxima semana, coeficiente de imposto, financeiro 21/28/35, JF com prêmio de 93,55% e frete R$ 0,30, e Infinit com prêmio de 93,00% sem frete. Quando houver mudança, ela entra na atualização diária.</div>
-    </div>
-
     <div class="lme-supplier-grid">
       <div class="lme-supplier-card">
         <div class="lme-supplier-head">PREÇO JF PÁSQUA</div>
@@ -841,21 +833,7 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
           <div class="lme-week-title">Preço da Semana</div>
           <div class="lme-week-subtitle">Cálculo de margem líquida por kg no padrão do app</div>
         </div>
-        <div class="lme-week-badge">Simulador</div>
-      </div>
-      <div class="lme-week-inputs">
-        <div class="lme-field">
-          <label for="calcSemanaVergalhao">Preço do vergalhão (R$)</label>
-          <input id="calcSemanaVergalhao" type="number" step="0.01"/>
-        </div>
-        <div class="lme-field">
-          <label for="calcSemanaMaoObra">Mão de obra (R$)</label>
-          <input id="calcSemanaMaoObra" type="number" step="0.01"/>
-        </div>
-        <div class="lme-field">
-          <label for="calcSemanaVenda">Preço de venda (R$)</label>
-          <input id="calcSemanaVenda" type="number" step="0.01"/>
-        </div>
+        <div class="lme-week-badge" id="lmeCalcBaseDate">Base —</div>
       </div>
       <div id="calcSemanaCard"></div>
     </div>
@@ -868,10 +846,23 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
     <div class="back" data-close="weekCalcDetailOverlay">← Voltar</div>
     <div class="head">
       <div class="nm">Preço da Semana</div>
-      <div class="per">Detalhamento completo do simulador</div>
+      <div class="per">Ajuste de preço e detalhamento completo</div>
     </div>
   </div>
   <div class="section">
+    <div class="lme-calc-form" style="margin-bottom:12px;">
+      <div class="h2">
+        <div class="left">Ajuste de preço</div>
+        <div class="right">Opcional</div>
+      </div>
+      <div class="lme-calc-fields" style="grid-template-columns:1fr;">
+        <div class="lme-field">
+          <label for="calcSemanaVenda">Preço de venda (R$)</label>
+          <input id="calcSemanaVenda" type="number" step="0.01"/>
+        </div>
+      </div>
+      <div class="lme-calc-note">O preço padrão já abre calculado com mão de obra fixa de R$ 2,00 e margem líquida alvo de R$ 7,00/kg. Altere apenas se quiser aumentar ou reduzir o valor de venda.</div>
+    </div>
     <div id="calcSemanaDetailBody"></div>
   </div>
 </div>
@@ -938,6 +929,7 @@ let state = {
     semanaVergalhao: 0,
     semanaMaoObra: 2.00,
     semanaVenda: 0,
+    semanaVendaManual: false,
     semanaIcmsPct: 12.00,
     semanaPisPct: 1.65,
     semanaCofinsPct: 7.60
@@ -1722,8 +1714,11 @@ function calcVergalhaoValues() {
   const infinit = supplierCard(premioInfinit, 0);
 
   const semanaVergalhao = Number(cfg.semanaVergalhao) || Math.min(jf.prazo || 0, infinit.prazo || 0);
-  const semanaMaoObra = Number(cfg.semanaMaoObra) || 0;
-  const semanaVenda = Number(cfg.semanaVenda) || 0;
+  const semanaMaoObra = 2.00;
+  const semanaTaxTotalPct = ((Number(cfg.semanaIcmsPct) || 0) + (Number(cfg.semanaPisPct) || 0) + (Number(cfg.semanaCofinsPct) || 0)) / 100;
+  const semanaTargetMargemLiquida = 7.00;
+  const semanaTargetVenda = (semanaVergalhao + semanaMaoObra) + (semanaTaxTotalPct < 1 ? (semanaTargetMargemLiquida / (1 - semanaTaxTotalPct)) : semanaTargetMargemLiquida);
+  const semanaVenda = Number(cfg.semanaVenda) || semanaTargetVenda || 0;
   const semanaIcmsPct = Number(cfg.semanaIcmsPct) || 0;
   const semanaPisPct = Number(cfg.semanaPisPct) || 0;
   const semanaCofinsPct = Number(cfg.semanaCofinsPct) || 0;
@@ -1755,6 +1750,8 @@ function calcVergalhaoValues() {
       maoObra: semanaMaoObra,
       venda: semanaVenda,
       custo: semanaCusto,
+      targetMargemLiquida: semanaTargetMargemLiquida,
+      vendaSugerida: semanaTargetVenda,
       margemBruta: semanaMargemBruta,
       margemBrutaPct: semanaMargemBrutaPct,
       icmsPct: semanaIcmsPct,
@@ -1875,7 +1872,6 @@ function supplierCalcDetailHtml(data) {
 
 function semanaCalcHtml(data) {
   const kpiClass = data.margemLiquida < 0 ? 'neg' : '';
-  const margemBrutaClass = data.margemBruta < 0 ? 'bad' : 'good';
   const kpiPctClass = data.margemLiquidaPct < 0 ? 'neg' : (data.margemLiquidaPct > 0 ? 'pos' : 'neu');
   const tribClass = data.resultadoTributario < 0 ? 'bad' : 'good';
   return `
@@ -1883,35 +1879,35 @@ function semanaCalcHtml(data) {
       <div class="lme-week-premium-top">
         <div class="lme-week-kpi ${kpiClass}">
           <div>
-            <div class="lme-week-kpi-label">Margem líquida por kg</div>
-            <div class="lme-week-kpi-value">R$ ${numBR(data.margemLiquida, 2)}</div>
+            <div class="lme-week-kpi-label">Preço de venda sugerido</div>
+            <div class="lme-week-kpi-value">R$ ${numBR(data.venda, 2)}</div>
             <div class="lme-week-kpi-sub">
-              <span class="lme-week-kpi-pill ${kpiPctClass}">${numBR(data.margemLiquidaPct, 2)}%</span>
-              <span class="lme-week-kpi-pill ${data.margemBruta >= 0 ? 'pos' : 'neg'}">Margem bruta R$ ${numBR(data.margemBruta, 2)}</span>
+              <span class="lme-week-kpi-pill ${kpiPctClass}">Margem líquida R$ ${numBR(data.margemLiquida, 2)}</span>
+              <span class="lme-week-kpi-pill pos">Meta R$ ${numBR(data.targetMargemLiquida, 2)}/kg</span>
             </div>
           </div>
-          <div class="lme-week-kpi-note">Visão principal do simulador. O detalhamento fiscal completo fica no botão abaixo.</div>
+          <div class="lme-week-kpi-note">Preço calculado automaticamente com vergalhão do menor fornecedor, mão de obra fixa de R$ 2,00 e margem líquida alvo de R$ 7,00/kg.</div>
         </div>
 
         <div class="lme-week-side">
           <div class="lme-week-compact">
-            <div class="lme-week-compact-title">Resumo rápido</div>
-            <div class="lme-week-compact-line"><span>Custo</span><strong>R$ ${numBR(data.custo, 2)}</strong></div>
-            <div class="lme-week-compact-line"><span>Venda</span><strong>R$ ${numBR(data.venda, 2)}</strong></div>
-            <div class="lme-week-compact-line"><span>Margem bruta</span><span class="${margemBrutaClass}">R$ ${numBR(data.margemBruta, 2)} · ${numBR(data.margemBrutaPct, 2)}%</span></div>
+            <div class="lme-week-compact-title">Base da semana</div>
+            <div class="lme-week-compact-line"><span>Vergalhão</span><strong>R$ ${numBR(data.vergalhao, 2)}</strong></div>
+            <div class="lme-week-compact-line"><span>Mão de obra</span><strong>R$ ${numBR(data.maoObra, 2)}</strong></div>
+            <div class="lme-week-compact-line"><span>Custo total</span><strong>R$ ${numBR(data.custo, 2)}</strong></div>
           </div>
 
           <div class="lme-week-compact">
-            <div class="lme-week-compact-title">Base e tributos</div>
-            <div class="lme-week-compact-line"><span>Vergalhão</span><strong>R$ ${numBR(data.vergalhao, 2)}</strong></div>
-            <div class="lme-week-compact-line"><span>Mão de obra</span><strong>R$ ${numBR(data.maoObra, 2)}</strong></div>
+            <div class="lme-week-compact-title">Resumo fiscal</div>
+            <div class="lme-week-compact-line"><span>Venda líquida</span><strong>R$ ${numBR(data.vendaLiquida, 2)}</strong></div>
+            <div class="lme-week-compact-line"><span>Custo líquido</span><strong>R$ ${numBR(data.custoLiquido, 2)}</strong></div>
             <div class="lme-week-compact-line"><span>Total tributos</span><span class="${tribClass}">R$ ${numBR(data.resultadoTributario, 2)}</span></div>
           </div>
         </div>
       </div>
 
       <div class="lme-week-actions">
-        <button type="button" class="lme-week-detail-btn" onclick="openWeekCalcDetail()">Ver detalhamento completo</button>
+        <button type="button" class="lme-week-detail-btn" onclick="openWeekCalcDetail()">Ajustar preço</button>
       </div>
     </div>
   `;
@@ -1984,12 +1980,15 @@ function renderLMECalc() {
   document.getElementById('lmeCalcBaseDate').textContent = cfg.baseDate ? `Base ${cfg.baseDate}` : 'Base indisponível';
 
   let calc = calcVergalhaoValues();
-  if (!cfg.semanaVergalhao) cfg.semanaVergalhao = Math.min(calc.jf.prazo || 0, calc.infinit.prazo || 0);
-  if (!cfg.semanaVenda) cfg.semanaVenda = cfg.semanaVergalhao + (Number(cfg.semanaMaoObra) || 0) + 8.68;
+  cfg.semanaMaoObra = 2.00;
+  cfg.semanaVergalhao = Math.min(calc.jf.prazo || 0, calc.infinit.prazo || 0);
+  if (!cfg.semanaVendaManual || !cfg.semanaVenda) cfg.semanaVenda = calc.semana.vendaSugerida;
   calc = calcVergalhaoValues();
-  document.getElementById('calcSemanaVergalhao').value = Number(cfg.semanaVergalhao || 0).toFixed(2);
-  document.getElementById('calcSemanaMaoObra').value = Number(cfg.semanaMaoObra || 0).toFixed(2);
-  document.getElementById('calcSemanaVenda').value = Number(cfg.semanaVenda || 0).toFixed(2);
+  const vendaInput = document.getElementById('calcSemanaVenda');
+  if (vendaInput) {
+    vendaInput.value = Number(cfg.semanaVenda || 0).toFixed(2);
+    vendaInput.oninput = syncLMECalcFromInputs;
+  }
 
   const jf = {
     basePrice: calc.basePrice,
@@ -2027,9 +2026,9 @@ function renderLMECalc() {
   }
 }
 function syncLMECalcFromInputs() {
-  state.lmeCalc.semanaVergalhao = Number(document.getElementById('calcSemanaVergalhao').value) || 0;
-  state.lmeCalc.semanaMaoObra = Number(document.getElementById('calcSemanaMaoObra').value) || 0;
-  state.lmeCalc.semanaVenda = Number(document.getElementById('calcSemanaVenda').value) || 0;
+  const vendaInput = document.getElementById('calcSemanaVenda');
+  state.lmeCalc.semanaVenda = Number(vendaInput ? vendaInput.value : 0) || 0;
+  state.lmeCalc.semanaVendaManual = true;
   renderLMECalc();
 }
 function openLMECalc() {
@@ -2200,11 +2199,11 @@ function renderBalance() {
   });
 
   const composition = [
-    {label:'Vendas', sub:'Linha VENDAS', valor:Number(vendas && vendas.VALOR || 0)},
-    {label:'Compras', sub:'Linha COMPRAS', valor:Number(compras && compras.VALOR || 0)},
-    {label:'Devoluções', sub:'Linha DEVOLUCOES', valor:Number(devolucoes && devolucoes.VALOR || 0)},
+    {label:'Vendas', sub:'', valor:Number(vendas && vendas.VALOR || 0)},
+    {label:'Compras', sub:'', valor:Number(compras && compras.VALOR || 0)},
+    {label:'Devoluções', sub:'', valor:Number(devolucoes && devolucoes.VALOR || 0)},
     {label:'Crédito mês anterior', sub:'ICMS + PIS + COFINS', valor:balanceTaxSum(creditoAnterior)},
-    {label:'Saldo consolidado', sub:'ICMS + PIS + COFINS da linha SALDO', valor:totalSaldo}
+    {label:'Saldo consolidado', sub:'ICMS + PIS + COFINS da ', valor:totalSaldo}
   ];
   compEl.innerHTML = composition.map(item => `
     <div class="tax-line-item">
@@ -2243,7 +2242,7 @@ document.getElementById('loginPass').addEventListener('input', () => document.ge
 document.querySelectorAll('.js-logout').forEach(el => el.addEventListener('click', logout));
 document.getElementById('lmeHistoricalBtn').addEventListener('click', openLMEHistorical);
 document.getElementById('openLmeCalcBtn').addEventListener('click', openLMECalc);
-['calcSemanaVergalhao','calcSemanaMaoObra','calcSemanaVenda'].forEach(id => {
+['calcSemanaVenda'].forEach(id => {
   const el = document.getElementById(id);
   if (el) el.addEventListener('input', syncLMECalcFromInputs);
 });

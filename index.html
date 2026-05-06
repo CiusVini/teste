@@ -1332,6 +1332,34 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
   }
 }
 
+/* Ajuste final mobile: títulos curtos e valor abaixo */
+#cardAnoResumo .row2 .mini{
+  display:block !important;
+  padding:14px 12px !important;
+}
+#cardAnoResumo .row2 .mini .k{
+  display:block;
+  margin-bottom:8px;
+  white-space:nowrap;
+  font-size:12px;
+  line-height:1.15;
+}
+#cardAnoResumo .row2 .mini .v2{
+  display:block;
+  width:100%;
+  font-size:clamp(15px,3.6vw,19px) !important;
+  line-height:1.12;
+  white-space:nowrap;
+  overflow:visible;
+  text-overflow:clip;
+  letter-spacing:-.03em;
+}
+@media (max-width:420px){
+  #cardAnoResumo .row2{gap:8px;}
+  #cardAnoResumo .row2 .mini{padding:12px 10px !important;}
+  #cardAnoResumo .row2 .mini .v2{font-size:15px !important;}
+}
+
 </style>
 </head>
 <body>
@@ -1900,7 +1928,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
         <div class="k">Ano (Resumo)</div>
         <div class="home-lucro row2" style="margin-top:12px;align-items:stretch;">
           <div class="mini" style="min-width:0;">
-            <div class="k">Lucro bruto</div>
+            <div class="k">Lucro Brt.</div>
             <div class="v2" id="resLucroComercialAno" style="font-size:20px;">—</div>
             <div class="s ano-summary-lines">
               <div>Margem: <span id="resMargemAno">—</span></div>
@@ -1908,7 +1936,7 @@ select{width:100%;padding:11px 10px;border-radius:14px;border:1px solid var(--li
             </div>
           </div>
           <div class="mini" style="min-width:0;">
-            <div class="k">Custos acumulado ano</div>
+            <div class="k">Custo Op.</div>
             <div class="v2" id="resCustoOpAno" style="font-size:20px;">—</div>
             <div class="s ano-summary-lines">
               <div>Custo: <span id="resCustoPctAno">—</span></div>

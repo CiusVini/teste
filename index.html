@@ -528,6 +528,73 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
 }
 @keyframes appLoaderSpin{to{transform:rotate(360deg)}}
 
+.pull-refresh-indicator{
+  position:fixed;
+  top:calc(env(safe-area-inset-top) + 14px);
+  left:50%;
+  transform:translate(-50%,-80px);
+  z-index:1600;
+  min-width:178px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:rgba(18,26,43,.96);
+  border:1px solid rgba(54,194,255,.22);
+  color:var(--text);
+  box-shadow:0 16px 30px rgba(0,0,0,.34), 0 0 0 1px rgba(54,194,255,.08) inset;
+  font-size:12px;
+  font-weight:900;
+  opacity:0;
+  pointer-events:none;
+  transition:transform .18s ease, opacity .18s ease;
+}
+.pull-refresh-indicator.visible{opacity:1;}
+.pull-refresh-indicator.loading{transform:translate(-50%,0);opacity:1;}
+.pull-refresh-spinner{
+  width:17px;
+  height:17px;
+  border-radius:999px;
+  border:3px solid rgba(255,255,255,.14);
+  border-top-color:var(--green);
+  flex:0 0 auto;
+}
+.pull-refresh-indicator.loading .pull-refresh-spinner{animation:appLoaderSpin .8s linear infinite;}
+.update-toast{
+  position:fixed;
+  left:50%;
+  bottom:calc(88px + env(safe-area-inset-bottom));
+  transform:translate(-50%,30px);
+  z-index:1601;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  max-width:calc(100vw - 28px);
+  padding:11px 14px;
+  border-radius:999px;
+  background:rgba(18,26,43,.96);
+  border:1px solid rgba(46,204,113,.24);
+  color:var(--text);
+  box-shadow:0 16px 30px rgba(0,0,0,.34), 0 0 0 1px rgba(46,204,113,.08) inset;
+  font-size:12px;
+  font-weight:900;
+  opacity:0;
+  pointer-events:none;
+  transition:transform .22s ease, opacity .22s ease;
+}
+.update-toast.show{opacity:1;transform:translate(-50%,0);}
+.update-toast.error{border-color:rgba(231,76,60,.28);}
+.update-toast .dot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:var(--green);
+  box-shadow:0 0 0 5px rgba(46,204,113,.10);
+}
+.update-toast.error .dot{background:#ff948b;box-shadow:0 0 0 5px rgba(231,76,60,.10);}
+
 </style>
 </head>
 <body>
@@ -565,6 +632,16 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
     <div class="app-loader-title">Carregando dados</div>
     <div class="app-loader-sub">Atualizando compras, LME e impostos...</div>
   </div>
+</div>
+
+
+<div class="pull-refresh-indicator" id="pullRefreshIndicator" aria-live="polite">
+  <span class="pull-refresh-spinner" aria-hidden="true"></span>
+  <span id="pullRefreshText">Puxe para atualizar</span>
+</div>
+<div class="update-toast" id="updateToast" aria-live="polite">
+  <span class="dot" aria-hidden="true"></span>
+  <span id="updateToastText">Dados atualizados</span>
 </div>
 
 <div class="app-shell" id="appShell">
@@ -1103,9 +1180,32 @@ async function atualizarDadosApiSilencioso() {
   if (!isAuthenticated()) return;
   try {
     const ok = await carregarDadosApi();
-    if (ok) render();
+    if (ok) {
+      render();
+      showUpdateToast('Dados atualizados');
+    }
   } catch (err) {
     console.warn(err);
+  }
+}
+
+let refreshManualEmAndamento = false;
+async function atualizarDadosManual() {
+  if (!isAuthenticated() || refreshManualEmAndamento) return;
+  refreshManualEmAndamento = true;
+  setPullRefreshLoading(true);
+  try {
+    const ok = await carregarDadosApi();
+    if (ok) {
+      render();
+      showUpdateToast('Dados atualizados');
+    }
+  } catch (err) {
+    console.warn(err);
+    showUpdateToast('Falha ao atualizar dados', true);
+  } finally {
+    refreshManualEmAndamento = false;
+    setTimeout(() => setPullRefreshLoading(false), 250);
   }
 }
 function iniciarAtualizacaoAutomaticaApi() {
@@ -1154,6 +1254,28 @@ function showAppLoader() {
 function hideAppLoader() {
   const loader = document.getElementById('appLoader');
   if (loader) loader.classList.remove('show');
+}
+
+let updateToastTimer = null;
+function showUpdateToast(message, error = false) {
+  const toast = document.getElementById('updateToast');
+  const text = document.getElementById('updateToastText');
+  if (!toast || !text) return;
+  text.textContent = message || 'Dados atualizados';
+  toast.classList.toggle('error', !!error);
+  toast.classList.add('show');
+  clearTimeout(updateToastTimer);
+  updateToastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+function setPullRefreshLoading(loading) {
+  const el = document.getElementById('pullRefreshIndicator');
+  const text = document.getElementById('pullRefreshText');
+  if (!el || !text) return;
+  el.classList.toggle('loading', !!loading);
+  el.classList.toggle('visible', !!loading);
+  text.textContent = loading ? 'Atualizando dados...' : 'Puxe para atualizar';
+  if (!loading) el.style.transform = '';
 }
 
 function login(user, pass) {
@@ -2709,6 +2831,67 @@ async function enforceFreshVersion() {
 }
 window.addEventListener('load', enforceFreshVersion);
 
+function iniciarPullToRefresh() {
+  let startY = 0;
+  let distance = 0;
+  let tracking = false;
+  const threshold = 88;
+  const indicator = () => document.getElementById('pullRefreshIndicator');
+  const text = () => document.getElementById('pullRefreshText');
+
+  function podeIniciar(e) {
+    if (!isAuthenticated() || refreshManualEmAndamento) return false;
+    if (window.scrollY > 0) return false;
+    if (document.querySelector('.overlay.open')) return false;
+    const target = e.target;
+    if (target && target.closest && target.closest('input, textarea, select, button, .overlay, .bottom-nav')) return false;
+    return true;
+  }
+
+  document.addEventListener('touchstart', (e) => {
+    if (!podeIniciar(e)) return;
+    tracking = true;
+    startY = e.touches[0].clientY;
+    distance = 0;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!tracking || refreshManualEmAndamento) return;
+    distance = e.touches[0].clientY - startY;
+    if (distance <= 0) return;
+
+    const el = indicator();
+    const label = text();
+    if (!el || !label) return;
+
+    const pull = Math.min(distance, 120);
+    const visible = pull > 18;
+    el.classList.toggle('visible', visible);
+    el.style.transform = `translate(-50%, ${Math.min(pull - 80, 18)}px)`;
+    label.textContent = pull >= threshold ? 'Solte para atualizar' : 'Puxe para atualizar';
+
+    if (pull > 28) e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('touchend', () => {
+    if (!tracking) return;
+    const shouldRefresh = distance >= threshold;
+    tracking = false;
+    distance = 0;
+
+    const el = indicator();
+    if (!shouldRefresh) {
+      if (el) {
+        el.classList.remove('visible');
+        el.style.transform = '';
+      }
+      return;
+    }
+    atualizarDadosManual();
+  }, { passive: true });
+}
+
+iniciarPullToRefresh();
 iniciarAppCompras();
 </script>
 </body>

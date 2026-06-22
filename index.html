@@ -93,6 +93,26 @@ body{
 .mini .v{font-size:15px;font-weight:950;margin-top:6px;line-height:1.15;letter-spacing:-.15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mini .v.neg{color:#ff948b} .mini .v.pos{color:var(--green)} .mini .v.warn{color:#ffd866} .mini .v.cyan{color:var(--cyan)}
 .carousel-dots{display:flex;justify-content:center;gap:8px;margin:2px 0 16px}.carousel-dots .dot{width:8px;height:8px;border-radius:999px;background:rgba(169,181,209,.35);transition:.18s ease}.carousel-dots .dot.active{background:var(--green);transform:scale(1.12)}
+.alert-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 14px 10px;margin:0 0 14px;overflow:hidden}
+.alert-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.alert-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:950;text-transform:uppercase;letter-spacing:.15px}
+.alert-title .bell{width:27px;height:27px;border-radius:10px;display:grid;place-items:center;background:rgba(46,204,113,.10);border:1px solid rgba(46,204,113,.24);color:var(--green)}
+.alert-title .bell svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}
+.alert-sub{font-size:11px;color:var(--muted);margin-top:2px;text-transform:none;font-weight:500;letter-spacing:0}
+.alert-count{font-size:11px;color:var(--muted);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.03);white-space:nowrap}
+.alert-list{display:flex;flex-direction:column;gap:8px}
+.alert-item{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.026);border-radius:15px}
+.alert-ico{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;font-weight:950;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.035)}
+.alert-ico.alta{color:#ff746b;border-color:rgba(231,76,60,.34);background:rgba(231,76,60,.10)}
+.alert-ico.media{color:#ffd866;border-color:rgba(241,196,15,.34);background:rgba(241,196,15,.10)}
+.alert-ico.baixa{color:var(--green);border-color:rgba(46,204,113,.30);background:rgba(46,204,113,.10)}
+.alert-body{min-width:0}.alert-body .t{font-size:13px;font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.alert-body .m{font-size:12px;color:var(--muted);line-height:1.28;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.alert-badge{font-size:10px;font-weight:950;border-radius:999px;padding:6px 8px;text-transform:uppercase;white-space:nowrap}
+.alert-badge.alta{color:#ff948b;background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.35)}
+.alert-badge.media{color:#ffd866;background:rgba(241,196,15,.11);border:1px solid rgba(241,196,15,.35)}
+.alert-badge.baixa{color:var(--green);background:rgba(46,204,113,.10);border:1px solid rgba(46,204,113,.30)}
+.alert-empty{font-size:12px;color:var(--muted);padding:10px;border:1px dashed rgba(255,255,255,.12);border-radius:14px;text-align:center}
+
 .footer{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
   padding:10px 14px calc(10px + env(safe-area-inset-bottom));
@@ -232,6 +252,18 @@ body{
     </article>
   </main>
   <div class="carousel-dots" id="carouselDots" aria-hidden="true"><span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  <section class="alert-panel" id="alertPanel">
+    <div class="alert-head">
+      <div>
+        <div class="alert-title"><span class="bell"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span><span>Alertas do dia</span></div>
+        <div class="alert-sub" id="alertSub">Informações importantes do módulo</div>
+      </div>
+      <div class="alert-count" id="alertCount">—</div>
+    </div>
+    <div class="alert-list" id="alertList">
+      <div class="alert-empty">Carregando alertas...</div>
+    </div>
+  </section>
 </div>
 
 <footer class="footer">
@@ -251,6 +283,10 @@ const APP_LINKS = {
   vendas: './vendas/',
   compras: './compras/'
 };
+
+const CARDS_MODULOS = ['financeiro','vendas','compras','lme'];
+let alertasDia = [];
+let moduloAtivo = 'financeiro';
 
 const els = Object.fromEntries([...document.querySelectorAll('[id]')].map(el => [el.id, el]));
 
@@ -323,6 +359,56 @@ function classifyFinanceiro(gap){
   return ['danger','Necessidade de caixa'];
 }
 
+function normalizarModulo(v){
+  const m = String(v || '').trim().toLowerCase();
+  if(m.includes('fin')) return 'financeiro';
+  if(m.includes('vend')) return 'vendas';
+  if(m.includes('comp') || m.includes('opera')) return 'compras';
+  if(m.includes('lme') || m.includes('merc')) return 'lme';
+  return m;
+}
+function prioridadeClasse(v){
+  const p = String(v || '').trim().toLowerCase();
+  if(p.includes('alta') || p.includes('crit')) return 'alta';
+  if(p.includes('media') || p.includes('média') || p.includes('aten')) return 'media';
+  return 'baixa';
+}
+function prioridadeIcone(p){
+  if(p === 'alta') return '!';
+  if(p === 'media') return '⚠';
+  return '✓';
+}
+function nomeModulo(m){
+  return {financeiro:'Financeiro', vendas:'Vendas', compras:'Compras / Operação', lme:'LME'}[m] || 'Módulo';
+}
+function renderAlertas(modulo){
+  moduloAtivo = modulo || moduloAtivo || 'financeiro';
+  const list = els.alertList;
+  if(!list) return;
+  const filtrados = (alertasDia || []).filter(a => normalizarModulo(a.modulo || a.Modulo || a.MÓDULO) === moduloAtivo);
+  if(els.alertSub) els.alertSub.textContent = 'Alertas de ' + nomeModulo(moduloAtivo);
+  if(els.alertCount) els.alertCount.textContent = filtrados.length ? filtrados.length + ' alerta' + (filtrados.length > 1 ? 's' : '') : 'Sem alertas';
+
+  if(!filtrados.length){
+    list.innerHTML = '<div class="alert-empty">Sem alertas relevantes para este módulo.</div>';
+    return;
+  }
+  list.innerHTML = filtrados.slice(0,4).map(a => {
+    const pri = prioridadeClasse(a.prioridade || a.Prioridade);
+    const titulo = a.titulo || a.Titulo || a.TÍTULO || 'Alerta';
+    const mensagem = a.mensagem || a.Mensagem || '';
+    return `<div class="alert-item">
+      <div class="alert-ico ${pri}">${prioridadeIcone(pri)}</div>
+      <div class="alert-body"><div class="t">${escapeHtml(titulo)}</div><div class="m">${escapeHtml(mensagem)}</div></div>
+      <div class="alert-badge ${pri}">${pri}</div>
+    </div>`;
+  }).join('');
+}
+function escapeHtml(v){
+  return String(v ?? '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+}
+
+
 async function carregar(silent=false){
   if(!silent) els.loading.classList.remove('hide');
   els.errorBox.style.display = 'none';
@@ -332,6 +418,7 @@ async function carregar(silent=false){
     const res = await fetch(url, {cache:'no-store'});
     if(!res.ok) throw new Error('Falha na API Diretoria: HTTP ' + res.status);
     const data = await res.json();
+    alertasDia = data.alertas || data.alertasDia || data.ALERTAS_DIA || [];
     const r = mapResumo(data.resumoHome);
 
     const gap = Number(r.gap_hoje || 0);
@@ -392,6 +479,7 @@ async function carregar(silent=false){
     const atualizado = dt(r.data_atualizacao || data.atualizadoEm);
     els.lastUpdate.textContent = atualizado;
     els.subTitle.textContent = 'Painel Executivo';
+    renderAlertas(moduloAtivo);
   } catch(err) {
     els.errorBox.textContent = 'Não foi possível carregar a HOME Diretoria. ' + (err && err.message ? err.message : err);
     els.errorBox.style.display = 'block';
@@ -423,6 +511,8 @@ if(cardsEl && dotEls.length){
   cardsEl.addEventListener('scroll', () => {
     const idx = Math.round(cardsEl.scrollLeft / Math.max(1, cardsEl.clientWidth));
     dotEls.forEach((d,i)=>d.classList.toggle('active', i===idx));
+    const novoModulo = CARDS_MODULOS[idx] || 'financeiro';
+    if(novoModulo !== moduloAtivo) renderAlertas(novoModulo);
   }, {passive:true});
 }
 

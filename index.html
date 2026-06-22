@@ -127,6 +127,15 @@ body{
 .loading-logo{width:120px;height:120px;object-fit:contain;margin:0 auto 16px;display:block}
 .spinner{width:42px;height:42px;border-radius:50%;border:4px solid rgba(148,163,184,.22);border-top-color:var(--green);animation:spin 1s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+.push-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin:0 0 14px;display:none}
+.push-panel.show{display:block}
+.push-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.push-text{min-width:0}.push-title{font-size:14px;font-weight:950;text-transform:uppercase;letter-spacing:.15px}.push-desc{font-size:12px;color:var(--muted);line-height:1.35;margin-top:4px}
+.push-btn{border:1px solid rgba(46,204,113,.35);background:rgba(46,204,113,.12);color:var(--green);border-radius:999px;padding:10px 12px;font-size:12px;font-weight:950;white-space:nowrap;cursor:pointer}
+.push-btn:disabled{opacity:.65;cursor:not-allowed}
+.push-status{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.3}
+
 @media(max-width:420px){
   .wrap{padding-left:14px;padding-right:14px}
   .hero .big{font-size:28px}
@@ -161,6 +170,17 @@ body{
   </header>
 
   <div class="error" id="errorBox"></div>
+
+  <section class="push-panel" id="pushPanel">
+    <div class="push-row">
+      <div class="push-text">
+        <div class="push-title">Notificações executivas</div>
+        <div class="push-desc">Ative para testar alertas do App Diretoria neste aparelho.</div>
+      </div>
+      <button class="push-btn" id="pushBtn" type="button">Ativar</button>
+    </div>
+    <div class="push-status" id="pushStatus">Aguardando autorização.</div>
+  </section>
 
   <main class="cards">
     <article class="card financeiro" data-open="financeiro">
@@ -431,6 +451,59 @@ function escapeHtml(v){
 }
 
 
+
+function isIosStandalone(){
+  return (window.navigator.standalone === true) || window.matchMedia('(display-mode: standalone)').matches;
+}
+function atualizarStatusPush(){
+  if(!els.pushPanel || !els.pushBtn || !els.pushStatus) return;
+  const temSuporte = 'Notification' in window && 'serviceWorker' in navigator;
+  els.pushPanel.classList.add('show');
+  if(!temSuporte){
+    els.pushBtn.disabled = true;
+    els.pushStatus.textContent = 'Este navegador não oferece suporte a notificações Web Push.';
+    return;
+  }
+  if(Notification.permission === 'granted'){
+    els.pushBtn.textContent = 'Testar';
+    els.pushStatus.textContent = 'Notificações autorizadas neste aparelho.';
+    return;
+  }
+  if(Notification.permission === 'denied'){
+    els.pushBtn.disabled = true;
+    els.pushStatus.textContent = 'Notificações bloqueadas. Libere nas configurações do navegador/aparelho.';
+    return;
+  }
+  if(/iPhone|iPad|iPod/i.test(navigator.userAgent) && !isIosStandalone()){
+    els.pushStatus.textContent = 'No iPhone, instale o app na Tela de Início antes de ativar notificações.';
+  } else {
+    els.pushStatus.textContent = 'Toque em Ativar para permitir e receber uma notificação de teste.';
+  }
+}
+async function ativarNotificacoesTeste(){
+  if(!('Notification' in window) || !('serviceWorker' in navigator)){
+    atualizarStatusPush();
+    return;
+  }
+  const reg = await navigator.serviceWorker.ready;
+  let permissao = Notification.permission;
+  if(permissao === 'default') permissao = await Notification.requestPermission();
+  atualizarStatusPush();
+  if(permissao !== 'granted') return;
+
+  const alertaAlta = (alertasDia || []).find(a => prioridadeClasse(a.prioridade || a.Prioridade) === 'alta') || (alertasDia || [])[0];
+  const titulo = alertaAlta ? ('App Diretoria • ' + (alertaAlta.titulo || alertaAlta.Titulo || 'Alerta executivo')) : 'App Diretoria • Teste de notificação';
+  const body = alertaAlta ? String(alertaAlta.mensagem || alertaAlta.Mensagem || 'Alerta executivo disponível no painel.') : 'Notificações ativadas neste aparelho.';
+  await reg.showNotification(titulo, {
+    body,
+    icon: './assets/icon-192.png',
+    badge: './assets/icon-192.png',
+    tag: 'app-diretoria-teste',
+    renotify: true,
+    data: { url: './index.html' }
+  });
+}
+
 async function carregar(silent=false){
   if(!silent) els.loading.classList.remove('hide');
   els.errorBox.style.display = 'none';
@@ -526,6 +599,8 @@ document.querySelectorAll('[data-open]').forEach(card => {
 });
 
 els.refreshBtn.addEventListener('click', () => carregar(false));
+if(els.pushBtn) els.pushBtn.addEventListener('click', ativarNotificacoesTeste);
+atualizarStatusPush();
 
 const cardsEl = document.querySelector('.cards');
 const dotEls = [...document.querySelectorAll('#carouselDots .dot')];

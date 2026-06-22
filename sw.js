@@ -1,4 +1,4 @@
-const CACHE_NAME = 'app-diretoria-vimacom-v1';
+const CACHE_NAME = 'app-diretoria-vimacom-v2-push-teste';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -34,5 +34,20 @@ self.addEventListener('fetch', event => {
       caches.open(CACHE_NAME).then(cache => cache.put(req, copy)).catch(() => null);
       return resp;
     }).catch(() => caches.match(req))
+  );
+});
+
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = (event.notification && event.notification.data && event.notification.data.url) || './index.html';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      for (const client of clientList) {
+        if ('focus' in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow(url);
+      return null;
+    })
   );
 });

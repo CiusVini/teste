@@ -276,7 +276,7 @@ body{
 </footer>
 
 <script>
-const API_DIRETORIA = 'https://script.google.com/macros/s/AKfycbwJYBoZ10utgHJZy9N4F29aFi6kOo2pgL7ARPvjOlvgS7YTRppFSiZ2rcP_Rs4oNj9v/exec';
+const API_DIRETORIA = 'https://script.google.com/macros/s/AKfycbxcTqm_09MW-NETqF-CFmNOVEFFzuCTwNHKom7vtMH1Q-98qQ1K4Um0Q0_7SztSAd3q/exec';
 
 const APP_LINKS = {
   financeiro: './financeiro/',
@@ -385,21 +385,36 @@ function renderAlertas(modulo){
   moduloAtivo = modulo || moduloAtivo || 'financeiro';
   const list = els.alertList;
   if(!list) return;
-  const filtrados = (alertasDia || []).filter(a => normalizarModulo(a.modulo || a.Modulo || a.MÓDULO) === moduloAtivo);
-  if(els.alertSub) els.alertSub.textContent = 'Alertas de ' + nomeModulo(moduloAtivo);
-  if(els.alertCount) els.alertCount.textContent = filtrados.length ? filtrados.length + ' alerta' + (filtrados.length > 1 ? 's' : '') : 'Sem alertas';
 
-  if(!filtrados.length){
-    list.innerHTML = '<div class="alert-empty">Sem alertas relevantes para este módulo.</div>';
+  const todos = Array.isArray(alertasDia) ? alertasDia.filter(a => {
+    const titulo = a.titulo || a.Titulo || a.TÍTULO || '';
+    const mensagem = a.mensagem || a.Mensagem || '';
+    return String(titulo || mensagem).trim() !== '';
+  }) : [];
+
+  if(els.alertSub) els.alertSub.textContent = 'Alertas executivos do dia';
+  if(els.alertCount) els.alertCount.textContent = todos.length ? todos.length + ' alerta' + (todos.length > 1 ? 's' : '') : 'Sem alertas';
+
+  if(!todos.length){
+    list.innerHTML = '<div class="alert-empty">Sem alertas relevantes no momento.</div>';
     return;
   }
-  list.innerHTML = filtrados.slice(0,4).map(a => {
+
+  const prioridadePeso = {alta: 1, media: 2, baixa: 3};
+  const ordenados = todos.slice().sort((a,b) => {
+    const pa = prioridadePeso[prioridadeClasse(a.prioridade || a.Prioridade)] || 9;
+    const pb = prioridadePeso[prioridadeClasse(b.prioridade || b.Prioridade)] || 9;
+    return pa - pb;
+  });
+
+  list.innerHTML = ordenados.slice(0,8).map(a => {
     const pri = prioridadeClasse(a.prioridade || a.Prioridade);
+    const modulo = nomeModulo(normalizarModulo(a.modulo || a.Modulo || a.MÓDULO));
     const titulo = a.titulo || a.Titulo || a.TÍTULO || 'Alerta';
     const mensagem = a.mensagem || a.Mensagem || '';
     return `<div class="alert-item">
       <div class="alert-ico ${pri}">${prioridadeIcone(pri)}</div>
-      <div class="alert-body"><div class="t">${escapeHtml(titulo)}</div><div class="m">${escapeHtml(mensagem)}</div></div>
+      <div class="alert-body"><div class="t">${escapeHtml(modulo)} · ${escapeHtml(titulo)}</div><div class="m">${escapeHtml(mensagem)}</div></div>
       <div class="alert-badge ${pri}">${pri}</div>
     </div>`;
   }).join('');

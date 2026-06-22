@@ -101,13 +101,13 @@ body{
 .alert-sub{font-size:11px;color:var(--muted);margin-top:2px;text-transform:none;font-weight:500;letter-spacing:0}
 .alert-count{font-size:11px;color:var(--muted);border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:7px 10px;background:rgba(255,255,255,.03);white-space:nowrap}
 .alert-list{display:flex;flex-direction:column;gap:8px}
-.alert-item{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.026);border-radius:15px}
+.alert-item{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:flex-start;padding:11px;border:1px solid rgba(255,255,255,.075);background:rgba(255,255,255,.026);border-radius:15px}
 .alert-ico{width:28px;height:28px;border-radius:999px;display:grid;place-items:center;font-weight:950;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.035)}
 .alert-ico.alta{color:#ff746b;border-color:rgba(231,76,60,.34);background:rgba(231,76,60,.10)}
 .alert-ico.media{color:#ffd866;border-color:rgba(241,196,15,.34);background:rgba(241,196,15,.10)}
 .alert-ico.baixa{color:var(--green);border-color:rgba(46,204,113,.30);background:rgba(46,204,113,.10)}
-.alert-body{min-width:0}.alert-body .t{font-size:13px;font-weight:900;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.alert-body .m{font-size:12px;color:var(--muted);line-height:1.28;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.alert-badge{font-size:10px;font-weight:950;border-radius:999px;padding:6px 8px;text-transform:uppercase;white-space:nowrap}
+.alert-body{min-width:0}.alert-body .t{font-size:13px;font-weight:900;line-height:1.25;white-space:normal;overflow:visible;text-overflow:clip;padding-right:4px}.alert-body .m{font-size:12px;color:var(--muted);line-height:1.35;margin-top:5px;white-space:normal;overflow:visible;display:block}
+.alert-badge{font-size:10px;font-weight:950;border-radius:999px;padding:6px 8px;text-transform:uppercase;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;margin-top:8px;width:max-content}
 .alert-badge.alta{color:#ff948b;background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.35)}
 .alert-badge.media{color:#ffd866;background:rgba(241,196,15,.11);border:1px solid rgba(241,196,15,.35)}
 .alert-badge.baixa{color:var(--green);background:rgba(46,204,113,.10);border:1px solid rgba(46,204,113,.30)}
@@ -386,36 +386,43 @@ function renderAlertas(modulo){
   const list = els.alertList;
   if(!list) return;
 
-  const todos = Array.isArray(alertasDia) ? alertasDia.filter(a => {
+  const todosValidos = Array.isArray(alertasDia) ? alertasDia.filter(a => {
     const titulo = a.titulo || a.Titulo || a.TÍTULO || '';
     const mensagem = a.mensagem || a.Mensagem || '';
     return String(titulo || mensagem).trim() !== '';
   }) : [];
 
-  if(els.alertSub) els.alertSub.textContent = 'Alertas executivos do dia';
-  if(els.alertCount) els.alertCount.textContent = todos.length ? todos.length + ' alerta' + (todos.length > 1 ? 's' : '') : 'Sem alertas';
+  const filtrados = todosValidos.filter(a => {
+    const moduloAlerta = normalizarModulo(a.modulo || a.Modulo || a.MÓDULO || a.Módulo || '');
+    return moduloAlerta === moduloAtivo;
+  });
 
-  if(!todos.length){
-    list.innerHTML = '<div class="alert-empty">Sem alertas relevantes no momento.</div>';
+  if(els.alertSub) els.alertSub.textContent = 'Alertas de ' + nomeModulo(moduloAtivo);
+  if(els.alertCount) els.alertCount.textContent = filtrados.length ? filtrados.length + ' alerta' + (filtrados.length > 1 ? 's' : '') : 'Sem alertas';
+
+  if(!filtrados.length){
+    list.innerHTML = '<div class="alert-empty">Sem alertas relevantes para este módulo.</div>';
     return;
   }
 
   const prioridadePeso = {alta: 1, media: 2, baixa: 3};
-  const ordenados = todos.slice().sort((a,b) => {
+  const ordenados = filtrados.slice().sort((a,b) => {
     const pa = prioridadePeso[prioridadeClasse(a.prioridade || a.Prioridade)] || 9;
     const pb = prioridadePeso[prioridadeClasse(b.prioridade || b.Prioridade)] || 9;
     return pa - pb;
   });
 
-  list.innerHTML = ordenados.slice(0,8).map(a => {
+  list.innerHTML = ordenados.map(a => {
     const pri = prioridadeClasse(a.prioridade || a.Prioridade);
-    const modulo = nomeModulo(normalizarModulo(a.modulo || a.Modulo || a.MÓDULO));
     const titulo = a.titulo || a.Titulo || a.TÍTULO || 'Alerta';
     const mensagem = a.mensagem || a.Mensagem || '';
     return `<div class="alert-item">
       <div class="alert-ico ${pri}">${prioridadeIcone(pri)}</div>
-      <div class="alert-body"><div class="t">${escapeHtml(modulo)} · ${escapeHtml(titulo)}</div><div class="m">${escapeHtml(mensagem)}</div></div>
-      <div class="alert-badge ${pri}">${pri}</div>
+      <div class="alert-body">
+        <div class="t">${escapeHtml(titulo)}</div>
+        <div class="m">${escapeHtml(mensagem)}</div>
+        <div class="alert-badge ${pri}">${pri}</div>
+      </div>
     </div>`;
   }).join('');
 }

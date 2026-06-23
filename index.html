@@ -481,19 +481,30 @@ async function firebaseMessagingSuportado(){
     return true;
   }catch(e){ return false; }
 }
+function ocultarCardPush(){
+  if(!els.pushPanel) return;
+  els.pushPanel.classList.remove('show');
+  els.pushPanel.style.display = 'none';
+}
+function mostrarCardPush(){
+  if(!els.pushPanel) return;
+  els.pushPanel.style.display = '';
+  els.pushPanel.classList.add('show');
+}
 function atualizarStatusPush(){
   if(!els.pushPanel || !els.pushBtn || !els.pushStatus) return;
-  els.pushPanel.classList.add('show');
+
+  // Depois que o aparelho já autorizou notificações, o card deixa de aparecer no app.
+  if('Notification' in window && Notification.permission === 'granted'){
+    ocultarCardPush();
+    return;
+  }
+
+  mostrarCardPush();
 
   if(!suportePush()){
     els.pushBtn.disabled = true;
     els.pushStatus.textContent = 'Este navegador não oferece suporte a notificações Web Push.';
-    return;
-  }
-  if(Notification.permission === 'granted'){
-    els.pushBtn.textContent = 'Ativo';
-    els.pushBtn.disabled = false;
-    els.pushStatus.textContent = 'Notificações automáticas autorizadas neste aparelho.';
     return;
   }
   if(Notification.permission === 'denied'){
@@ -563,8 +574,9 @@ async function ativarNotificacoesGestor(){
     if(!token) throw new Error('Token não gerado pelo Firebase.');
 
     await salvarTokenPush(token);
-    els.pushStatus.textContent = 'Notificações automáticas ativadas. Token enviado para PUSH_TOKENS.';
+    els.pushStatus.textContent = 'Notificações automáticas ativadas.';
     els.pushBtn.textContent = 'Ativo';
+    ocultarCardPush();
 
     messaging.onMessage(payload => {
       const titulo = payload?.data?.title || payload?.notification?.title || 'Gestor';

@@ -1,7 +1,7 @@
 {
-  "name": "APP DIRETORIA VIMACOM",
-  "short_name": "Diretoria",
-  "description": "Painel executivo da Diretoria VIMACOM",
+  "name": "Gestor",
+  "short_name": "Gestor",
+  "description": "Gestor executivo VIMACOM",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

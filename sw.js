@@ -1,4 +1,4 @@
-const CACHE_NAME = 'app-diretoria-vimacom-v3-push-fcm';
+const CACHE_NAME = 'app-diretoria-vimacom-v4-push-clean';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -26,7 +26,7 @@ messaging.onBackgroundMessage(payload => {
     icon: './assets/icon-192.png',
     badge: './assets/icon-192.png',
     tag: (payload && payload.data && payload.data.tag) || 'gestor-alerta',
-    renotify: true,
+    renotify: false,
     data: { url }
   });
 });
@@ -55,23 +55,6 @@ self.addEventListener('fetch', event => {
       return resp;
     }).catch(() => caches.match(req))
   );
-});
-
-self.addEventListener('push', event => {
-  if (!event.data) return;
-  let data = {};
-  try { data = event.data.json(); } catch(e) { data = { body: event.data.text() }; }
-  const titulo = data.title || (data.notification && data.notification.title) || 'Gestor';
-  const body = data.body || (data.notification && data.notification.body) || 'Novo alerta executivo.';
-  const url = data.url || './index.html';
-  event.waitUntil(self.registration.showNotification(titulo, {
-    body,
-    icon: './assets/icon-192.png',
-    badge: './assets/icon-192.png',
-    tag: data.tag || 'gestor-alerta',
-    renotify: true,
-    data: { url }
-  }));
 });
 
 self.addEventListener('notificationclick', event => {

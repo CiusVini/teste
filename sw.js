@@ -1,4 +1,4 @@
-const CACHE_NAME = 'app-diretoria-vimacom-v2-push-teste';
+const CACHE_NAME = 'app-diretoria-vimacom-v3-push-fcm';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,27 @@ const CORE_ASSETS = [
   './vendas/',
   './compras/'
 ];
+
+importScripts('https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.4/firebase-messaging-compat.js');
+
+firebase.initializeApp({"apiKey": "AIzaSyChnFF19gFKfsL6McfBazOHPgYfjXcfnf4", "authDomain": "app-diretoria-vimacom.firebaseapp.com", "projectId": "app-diretoria-vimacom", "storageBucket": "app-diretoria-vimacom.firebasestorage.app", "messagingSenderId": "642905541906", "appId": "1:642905541906:web:bfddbcea02338af5db77cb"});
+
+const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage(payload => {
+  const titulo = (payload && payload.data && payload.data.title) || 'Gestor';
+  const body = (payload && payload.data && payload.data.body) || 'Novo alerta executivo.';
+  const url = (payload && payload.data && payload.data.url) || './index.html';
+  self.registration.showNotification(titulo, {
+    body,
+    icon: './assets/icon-192.png',
+    badge: './assets/icon-192.png',
+    tag: (payload && payload.data && payload.data.tag) || 'gestor-alerta',
+    renotify: true,
+    data: { url }
+  });
+});
 
 self.addEventListener('install', event => {
   self.skipWaiting();
@@ -27,7 +48,6 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
-
   event.respondWith(
     fetch(req).then(resp => {
       const copy = resp.clone();
@@ -37,6 +57,22 @@ self.addEventListener('fetch', event => {
   );
 });
 
+self.addEventListener('push', event => {
+  if (!event.data) return;
+  let data = {};
+  try { data = event.data.json(); } catch(e) { data = { body: event.data.text() }; }
+  const titulo = data.title || (data.notification && data.notification.title) || 'Gestor';
+  const body = data.body || (data.notification && data.notification.body) || 'Novo alerta executivo.';
+  const url = data.url || './index.html';
+  event.waitUntil(self.registration.showNotification(titulo, {
+    body,
+    icon: './assets/icon-192.png',
+    badge: './assets/icon-192.png',
+    tag: data.tag || 'gestor-alerta',
+    renotify: true,
+    data: { url }
+  }));
+});
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();

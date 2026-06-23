@@ -175,7 +175,7 @@ body{
     <div class="push-row">
       <div class="push-text">
         <div class="push-title">Notificações executivas</div>
-        <div class="push-desc">Ative para testar alertas do App Diretoria neste aparelho.</div>
+        <div class="push-desc">Ative para receber alertas automáticos do Gestor neste aparelho.</div>
       </div>
       <button class="push-btn" id="pushBtn" type="button">Ativar</button>
     </div>
@@ -295,8 +295,23 @@ body{
   </div>
 </footer>
 
+
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-messaging-compat.js"></script>
 <script>
 const API_DIRETORIA = 'https://script.google.com/macros/s/AKfycbxcTqm_09MW-NETqF-CFmNOVEFFzuCTwNHKom7vtMH1Q-98qQ1K4Um0Q0_7SztSAd3q/exec';
+
+const FIREBASE_CONFIG = {
+  "apiKey": "AIzaSyChnFF19gFKfsL6McfBazOHPgYfjXcfnf4",
+  "authDomain": "app-diretoria-vimacom.firebaseapp.com",
+  "projectId": "app-diretoria-vimacom",
+  "storageBucket": "app-diretoria-vimacom.firebasestorage.app",
+  "messagingSenderId": "642905541906",
+  "appId": "1:642905541906:web:bfddbcea02338af5db77cb"
+};
+const FIREBASE_VAPID_KEY = 'BLyIczhVr3L3_ubSt8HqDFD-JzlVHzGbOZ-IvxBBlkOWYt0O96p5wlWnU23yNQCB8vxs8SQ4dyheHh1zBP7936Q';
+const PUSH_USUARIO_PADRAO = 'Gestor';
+
 
 const APP_LINKS = {
   financeiro: './financeiro/',
@@ -455,18 +470,30 @@ function escapeHtml(v){
 function isIosStandalone(){
   return (window.navigator.standalone === true) || window.matchMedia('(display-mode: standalone)').matches;
 }
+function suportePush(){
+  return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window && window.firebase && firebase.messaging;
+}
+async function firebaseMessagingSuportado(){
+  try{
+    if(firebase.messaging && firebase.messaging.isSupported){
+      return await firebase.messaging.isSupported();
+    }
+    return true;
+  }catch(e){ return false; }
+}
 function atualizarStatusPush(){
   if(!els.pushPanel || !els.pushBtn || !els.pushStatus) return;
-  const temSuporte = 'Notification' in window && 'serviceWorker' in navigator;
   els.pushPanel.classList.add('show');
-  if(!temSuporte){
+
+  if(!suportePush()){
     els.pushBtn.disabled = true;
     els.pushStatus.textContent = 'Este navegador não oferece suporte a notificações Web Push.';
     return;
   }
   if(Notification.permission === 'granted'){
-    els.pushBtn.textContent = 'Testar';
-    els.pushStatus.textContent = 'Notificações autorizadas neste aparelho.';
+    els.pushBtn.textContent = 'Ativo';
+    els.pushBtn.disabled = false;
+    els.pushStatus.textContent = 'Notificações automáticas autorizadas neste aparelho.';
     return;
   }
   if(Notification.permission === 'denied'){
@@ -474,34 +501,89 @@ function atualizarStatusPush(){
     els.pushStatus.textContent = 'Notificações bloqueadas. Libere nas configurações do navegador/aparelho.';
     return;
   }
+  els.pushBtn.textContent = 'Ativar';
+  els.pushBtn.disabled = false;
   if(/iPhone|iPad|iPod/i.test(navigator.userAgent) && !isIosStandalone()){
     els.pushStatus.textContent = 'No iPhone, instale o app na Tela de Início antes de ativar notificações.';
   } else {
-    els.pushStatus.textContent = 'Toque em Ativar para permitir e receber uma notificação de teste.';
+    els.pushStatus.textContent = 'Toque em Ativar para receber alertas automáticos do Gestor.';
   }
 }
-async function ativarNotificacoesTeste(){
-  if(!('Notification' in window) || !('serviceWorker' in navigator)){
+function detectarDispositivo(){
+  const ua = navigator.userAgent || '';
+  if(/iPhone/i.test(ua)) return 'iPhone PWA';
+  if(/iPad/i.test(ua)) return 'iPad PWA';
+  if(/Android/i.test(ua)) return 'Android';
+  return 'Web';
+}
+async function salvarTokenPush(token){
+  const payload = {
+    action: 'salvarPushToken',
+    token,
+    usuario: PUSH_USUARIO_PADRAO,
+    dispositivo: detectarDispositivo(),
+    origem: location.href,
+    data: new Date().toISOString()
+  };
+  await fetch(API_DIRETORIA, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  });
+}
+async function ativarNotificacoesGestor(){
+  if(!suportePush()){
     atualizarStatusPush();
     return;
   }
-  const reg = await navigator.serviceWorker.ready;
-  let permissao = Notification.permission;
-  if(permissao === 'default') permissao = await Notification.requestPermission();
-  atualizarStatusPush();
-  if(permissao !== 'granted') return;
+  els.pushBtn.disabled = true;
+  els.pushStatus.textContent = 'Ativando notificações...';
 
-  const alertaAlta = (alertasDia || []).find(a => prioridadeClasse(a.prioridade || a.Prioridade) === 'alta') || (alertasDia || [])[0];
-  const titulo = alertaAlta ? ('App Diretoria • ' + (alertaAlta.titulo || alertaAlta.Titulo || 'Alerta executivo')) : 'App Diretoria • Teste de notificação';
-  const body = alertaAlta ? String(alertaAlta.mensagem || alertaAlta.Mensagem || 'Alerta executivo disponível no painel.') : 'Notificações ativadas neste aparelho.';
-  await reg.showNotification(titulo, {
-    body,
-    icon: './assets/icon-192.png',
-    badge: './assets/icon-192.png',
-    tag: 'app-diretoria-teste',
-    renotify: true,
-    data: { url: './index.html' }
-  });
+  try{
+    const suportado = await firebaseMessagingSuportado();
+    if(!suportado) throw new Error('Firebase Messaging não suportado neste navegador.');
+
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+
+    const reg = await navigator.serviceWorker.register('./sw.js');
+    let permissao = Notification.permission;
+    if(permissao === 'default') permissao = await Notification.requestPermission();
+    if(permissao !== 'granted'){
+      atualizarStatusPush();
+      return;
+    }
+
+    const messaging = firebase.messaging();
+    const token = await messaging.getToken({
+      vapidKey: FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: reg
+    });
+
+    if(!token) throw new Error('Token não gerado pelo Firebase.');
+
+    await salvarTokenPush(token);
+    els.pushStatus.textContent = 'Notificações automáticas ativadas. Token enviado para PUSH_TOKENS.';
+    els.pushBtn.textContent = 'Ativo';
+
+    messaging.onMessage(payload => {
+      const titulo = payload?.data?.title || payload?.notification?.title || 'Gestor';
+      const body = payload?.data?.body || payload?.notification?.body || 'Novo alerta executivo.';
+      navigator.serviceWorker.ready.then(reg => reg.showNotification(titulo, {
+        body,
+        icon: './assets/icon-192.png',
+        badge: './assets/icon-192.png',
+        tag: payload?.data?.tag || 'gestor-alerta',
+        data: { url: payload?.data?.url || './index.html' }
+      }));
+    });
+  }catch(err){
+    console.error(err);
+    els.pushStatus.textContent = 'Falha ao ativar push: ' + (err && err.message ? err.message : err);
+  }finally{
+    els.pushBtn.disabled = false;
+    atualizarStatusPush();
+  }
 }
 
 async function carregar(silent=false){
@@ -599,7 +681,7 @@ document.querySelectorAll('[data-open]').forEach(card => {
 });
 
 els.refreshBtn.addEventListener('click', () => carregar(false));
-if(els.pushBtn) els.pushBtn.addEventListener('click', ativarNotificacoesTeste);
+if(els.pushBtn) els.pushBtn.addEventListener('click', ativarNotificacoesGestor);
 atualizarStatusPush();
 
 const cardsEl = document.querySelector('.cards');

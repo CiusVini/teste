@@ -63,6 +63,11 @@ body{
 .status.ok{color:var(--green);background:rgba(46,204,113,.10);border-color:rgba(46,204,113,.23)}
 .status.warn{color:#ffd866;background:rgba(241,196,15,.10);border-color:rgba(241,196,15,.23)}
 .status.danger{color:#ff948b;background:rgba(231,76,60,.10);border-color:rgba(231,76,60,.23)}
+.lme-main-row{align-items:flex-start}
+.lme-delta-pill{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:999px;padding:9px 12px;font-size:13px;font-weight:950;white-space:nowrap;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);min-width:116px;text-align:center}
+.lme-delta-pill.neg{color:#ff948b;background:rgba(231,76,60,.12);border-color:rgba(231,76,60,.32)}
+.lme-delta-pill.pos{color:var(--green);background:rgba(46,204,113,.12);border-color:rgba(46,204,113,.30)}
+.lme-delta-pill.neutral{color:#ffd866;background:rgba(241,196,15,.10);border-color:rgba(241,196,15,.26)}
 .cards{display:flex;flex-direction:row;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px;scrollbar-width:none}.cards::-webkit-scrollbar{display:none}
 .card{
   position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
@@ -253,21 +258,22 @@ body{
       <div class="card-head">
         <div>
           <div class="card-title"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-5 4 3 5-8"/></svg></span>LME</div>
-          <div class="card-sub">Cobre e dólar — semana atual</div>
+          <div class="card-sub">Preço da semana e tendência da próxima semana</div>
         </div>
         <div class="chev">›</div>
       </div>
-      <div class="main-row">
+      <div class="main-row lme-main-row">
         <div>
-          <div class="main-k">Média semana R$/kg</div>
+          <div class="main-k">Preço da semana</div>
           <div class="main-v" id="lmePreco">—</div>
         </div>
+        <div class="lme-delta-pill neutral" id="lmeDeltaPill">—</div>
       </div>
       <div class="grid2">
-        <div class="mini"><div class="k">Média LME</div><div class="v" id="lmeMedia">—</div></div>
-        <div class="mini"><div class="k">Média dólar</div><div class="v" id="lmeDolar">—</div></div>
-        <div class="mini"><div class="k">Vs semana anterior</div><div class="v" id="lmeVar">—</div></div>
-        <div class="mini"><div class="k">Dia atual R$/kg</div><div class="v" id="lmeHojePreco">—</div></div>
+        <div class="mini"><div class="k">Média LME semana</div><div class="v" id="lmeMedia">—</div></div>
+        <div class="mini"><div class="k">Dólar médio semana</div><div class="v" id="lmeDolar">—</div></div>
+        <div class="mini"><div class="k">Semana anterior</div><div class="v" id="lmeSemanaAnterior">—</div></div>
+        <div class="mini"><div class="k">Próxima semana</div><div class="v" id="lmeProximaSemana">—</div></div>
       </div>
     </article>
   </main>
@@ -386,6 +392,102 @@ function variacao(v){
   const n = Number(v || 0);
   const seta = n > 0 ? '↑ ' : n < 0 ? '↓ ' : '→ ';
   return seta + money(n, false);
+}
+
+function normalizarChaveResumo(k){
+  return String(k || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,'_')
+    .replace(/^_+|_+$/g,'');
+}
+function valorResumo(r, keys){
+  if(!r) return undefined;
+  const mapa = {};
+  Object.keys(r).forEach(k => { mapa[normalizarChaveResumo(k)] = r[k]; });
+  for(const k of keys){
+    const nk = normalizarChaveResumo(k);
+    if(Object.prototype.hasOwnProperty.call(mapa, nk)) return mapa[nk];
+  }
+  return undefined;
+}
+function numeroResumo(r, keys){
+  const v = valorResumo(r, keys);
+  if(v === undefined || v === null || String(v).trim() === '') return null;
+  return toNumber(v);
+}
+function pct(v){
+  const n = Number(v || 0);
+  return Math.abs(n).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%';
+}
+function calcularLmeHome(r){
+  const precoSemana = numeroResumo(r, [
+    'preco_da_semana_kg','preco_semana_kg','preco_semana','preco_convertido_kg','preco_hoje_kg','dia_atual_rs_kg'
+  ]);
+  const precoProximaInformado = numeroResumo(r, [
+    'preco_para_proxima_semana','preco_proxima_semana_kg','preco_proxima_semana','proxima_semana_kg','lme_preco_proxima_semana'
+  ]);
+  const variacaoInformada = numeroResumo(r, [
+    'variacao_proxima_semana_kg','variacao_lme_semana','variacao_semana','variacao_rs_kg','vs_semana_anterior'
+  ]);
+  let semanaAnterior = numeroResumo(r, [
+    'media_da_semana_anterior','media_semana_anterior_kg','preco_semana_anterior_kg','semana_anterior_kg','preco_anterior_kg','lme_preco_semana_anterior','preco_semana_anterior'
+  ]);
+
+  let precoProxima = precoProximaInformado ?? precoSemana;
+  let variacaoAbs = variacaoInformada;
+
+  if(semanaAnterior === null && precoProxima !== null && variacaoAbs !== null){
+    semanaAnterior = precoProxima - variacaoAbs;
+  }
+  if(variacaoAbs === null && precoProxima !== null && semanaAnterior !== null){
+    variacaoAbs = precoProxima - semanaAnterior;
+  }
+
+  const basePct = semanaAnterior || precoSemana || 0;
+  const variacaoPct = basePct ? (variacaoAbs || 0) / basePct * 100 : 0;
+  const classe = (variacaoAbs || 0) < -0.005 ? 'neg' : (variacaoAbs || 0) > 0.005 ? 'pos' : 'neutral';
+  const seta = classe === 'neg' ? '↓' : classe === 'pos' ? '↑' : '→';
+
+  return {precoSemana, precoProxima, semanaAnterior, variacaoAbs: variacaoAbs || 0, variacaoPct, classe, seta};
+}
+function textoDeltaLme(ctx){
+  if(!ctx || (!ctx.variacaoAbs && !ctx.variacaoPct)) return '→ estável';
+  return `${ctx.seta} ${money(Math.abs(ctx.variacaoAbs), false)} • ${pct(ctx.variacaoPct)}`;
+}
+function alertasLmeExecutivos(r){
+  const ctx = calcularLmeHome(r);
+  if(!ctx || ctx.precoProxima === null || ctx.semanaAnterior === null) return [];
+
+  const queda = ctx.classe === 'neg';
+  const alta = ctx.classe === 'pos';
+  const movimento = queda ? 'recuou' : alta ? 'avançou' : 'permaneceu estável';
+  const direcaoTitulo = queda ? 'LME em queda' : alta ? 'LME em alta' : 'LME estável';
+  const prioridade = alta ? 'Alta' : queda ? 'Média' : 'Baixa';
+
+  const alertaPrincipal = queda
+    ? `LME recuou ${money(Math.abs(ctx.variacaoAbs), false)} em relação à semana anterior (${pct(ctx.variacaoPct)}). Atenção aos preços de venda.`
+    : alta
+      ? `LME avançou ${money(Math.abs(ctx.variacaoAbs), false)} em relação à semana anterior (${pct(ctx.variacaoPct)}). Reavalie preços antes de novas negociações.`
+      : `LME permaneceu estável em relação à semana anterior. Mantenha acompanhamento antes de grandes compras.`;
+
+  const alertaPreco = queda
+    ? `Preço para próxima semana em ${money(ctx.precoProxima, false)} contra ${money(ctx.semanaAnterior, false)} da semana anterior. Evite vender com tabela antiga sem revisar margem.`
+    : alta
+      ? `Preço para próxima semana em ${money(ctx.precoProxima, false)} contra ${money(ctx.semanaAnterior, false)} da semana anterior. Atualize cotações e pedidos em aberto.`
+      : `Preço para próxima semana em ${money(ctx.precoProxima, false)}. Sem deslocamento relevante contra a semana anterior.`;
+
+  const alertaCompras = queda
+    ? 'Queda favorece negociação de compras, mas exige cautela em estoque comprado caro e pedidos já precificados.'
+    : alta
+      ? 'Alta pressiona reposição e pode exigir reajuste preventivo em vendas de cobre.'
+      : 'Com mercado estável, priorize compras conforme giro e necessidade operacional.';
+
+  return [
+    {modulo:'LME', prioridade, titulo:direcaoTitulo, mensagem:alertaPrincipal, origem:'home_lme_auto'},
+    {modulo:'LME', prioridade:'Média', titulo:'Atenção aos preços', mensagem:alertaPreco, origem:'home_lme_auto'},
+    {modulo:'LME', prioridade:'Baixa', titulo:'Compras e reposição', mensagem:alertaCompras, origem:'home_lme_auto'}
+  ];
 }
 
 function classifyFinanceiro(gap){
@@ -607,8 +709,9 @@ async function carregar(silent=false){
     const res = await fetch(url, {cache:'no-store'});
     if(!res.ok) throw new Error('Falha na API Diretoria: HTTP ' + res.status);
     const data = await res.json();
-    alertasDia = data.alertas || data.alertasDia || data.ALERTAS_DIA || [];
+    const alertasApi = data.alertas || data.alertasDia || data.ALERTAS_DIA || [];
     const r = mapResumo(data.resumoHome);
+    alertasDia = Array.isArray(alertasApi) ? alertasApi.concat(alertasLmeExecutivos(r)) : alertasLmeExecutivos(r);
 
     const gap = Number(r.gap_hoje || 0);
     const [stClass, stText] = classifyFinanceiro(gap);
@@ -659,11 +762,16 @@ async function carregar(silent=false){
     setText('opJuros', money(r.juros_tarifas, true));
     setText('opCustoKg', money(custoKg, false));
 
-    setText('lmePreco', money(r.preco_convertido_kg, false));
+    const lmeHome = calcularLmeHome(r);
+    setText('lmePreco', lmeHome.precoSemana !== null ? money(lmeHome.precoSemana, false) : '—');
     setText('lmeMedia', num(r.media_lme_semana, 2));
     setText('lmeDolar', num(r.media_dolar_semana, 4));
-    setText('lmeVar', variacao(r.variacao_lme_semana), Number(r.variacao_lme_semana) < 0 ? 'neg' : 'pos');
-    setText('lmeHojePreco', money(r.preco_hoje_kg, false));
+    setText('lmeSemanaAnterior', lmeHome.semanaAnterior !== null ? money(lmeHome.semanaAnterior, false) : '—');
+    setText('lmeProximaSemana', lmeHome.precoProxima !== null ? money(lmeHome.precoProxima, false) : '—', lmeHome.classe === 'neg' ? 'neg' : lmeHome.classe === 'pos' ? 'pos' : 'warn');
+    if(els.lmeDeltaPill){
+      els.lmeDeltaPill.textContent = textoDeltaLme(lmeHome);
+      els.lmeDeltaPill.className = 'lme-delta-pill ' + lmeHome.classe;
+    }
 
     const atualizado = dt(r.data_atualizacao || data.atualizadoEm);
     els.lastUpdate.textContent = atualizado;
